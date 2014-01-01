@@ -19,12 +19,10 @@ public class Contractor extends Worker
      * @param userName username for authentication
      * @param password password for authentication
      */
-    public Contractor(ArrayList<WorkerRoles> roles, String name, String userName, String password)
+    public Contractor(WorkerRoles[] roles, String[] name, String userName, String password)
     {
-        this.roles = roles;
-        this.name = name;
-        this.userName = userName;
-        this.password = password;
+        super(roles,userName, password);
+        this.name = name[0];
     }
     
     /**

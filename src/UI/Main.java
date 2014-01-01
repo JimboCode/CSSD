@@ -49,8 +49,7 @@ public class Main {
                 mainform.setVisible(true);
                 
                 // start login dialog
-                mainform.start();
-                System.out.println("Main Called Start on MainMDIUI");
+                mainform.start(true);
             }
         });
     }
@@ -60,13 +59,24 @@ public class Main {
         // Create some system users
         WorkerRegister register = WorkerRegister.getInstance();
         
-        ArrayList<WorkerRoles> roles = new ArrayList();
-        //roles.add(WorkerRoles.QC);
-        roles.add(WorkerRoles.PROJECT_MANAGER);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.PROJECT_MANAGER}, new String[]{"James","Staite"}, "James.Staite", "Password",WorkerType.STAFF);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.PROJECT_MANAGER}, new String[]{"Sam","Pickstone"}, "S.Pickstone", "Password",WorkerType.STAFF);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.PROJECT_MANAGER}, new String[]{"Sarah","Murfet"}, "S.Murfet", "Password",WorkerType.STAFF); 
+
+        register.addWorker(new WorkerRoles[]{WorkerRoles.QC}, new String[]{"John","Smith"}, "J.Smith", "Password",WorkerType.STAFF);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.QC}, new String[]{"Richard","Brown"}, "R.Brown", "Password",WorkerType.STAFF);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.QC}, new String[]{"David","Hudson"}, "D.Hudson", "Password",WorkerType.STAFF);
+
+        register.addWorker(new WorkerRoles[]{WorkerRoles.QC_TEAM_LEADER}, new String[]{"Lynne","Featherstone"}, "L.Featherstone", "Password",WorkerType.STAFF);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.QC_TEAM_LEADER}, new String[]{"Richard","Brown"}, "R.Brown", "Password",WorkerType.STAFF);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.QC_TEAM_LEADER}, new String[]{"Dan","Roddis"}, "R.Roddis", "Password",WorkerType.STAFF);
         
-        register.addWorker(roles, "James Staite", "James.Staite", "Password",WorkerType.STAFF);
-        register.addWorker(roles, "Sam Pickstone", "S.Pickstone", "Password",WorkerType.STAFF);
-        register.addWorker(roles, "Sarah Murfet", "S.Murfet", "Password",WorkerType.STAFF);   
+        register.addWorker(new WorkerRoles[]{WorkerRoles.AUTHOR}, new String[]{"Jill","Martin"}, "J.Martin", "Password",WorkerType.STAFF);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.AUTHOR}, new String[]{"Jackie","Brown"}, "J.Brown", "Password",WorkerType.STAFF);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.AUTHOR}, new String[]{"Richard","Goodson"}, "R.Goodson", "Password",WorkerType.STAFF);
+        
+        register.addWorker(new WorkerRoles[]{WorkerRoles.QC}, new String[]{"Terry","Richardson"}, "T.Richardson", "Password", WorkerType.FREELANCER);
+        register.addWorker(new WorkerRoles[]{WorkerRoles.QC}, new String[]{"Mark","Johnson"}, "M.Johnson", "Password", WorkerType.FREELANCER);
         
         // Create some clients
         ClientRegister clientReg = ClientRegister.getInstance();
@@ -74,5 +84,7 @@ public class Main {
         clientReg.addClient("DreamWorks Animation", "1, The Road", "Westend", "Sheffield","", "S1 5GT","0114 2726758");
         clientReg.addClient("20th Century Fox", "Century City", "California", "USA","", "","01 6514 2726758");
         clientReg.addClient("Metro-Goldwyn-Mayer", "Golden Towers", "Darnell", "Sheffield","", "S9 6GT","0114 245986");
+        
+        // Create some Projects
     }
 }

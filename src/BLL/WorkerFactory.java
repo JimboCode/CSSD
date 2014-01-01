@@ -18,7 +18,7 @@ public class WorkerFactory
      * @param type Type of worker - see WorkerType Enum
      * @return The Worker class
      */
-    public static Worker createWorker(ArrayList<WorkerRoles> roles, String name, String userName, String password, WorkerType type)
+    public static Worker createWorker(WorkerRoles[] roles, String[] name, String userName, String password, WorkerType type)
     {
         Worker worker = null;
         switch (type)

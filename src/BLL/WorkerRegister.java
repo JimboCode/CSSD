@@ -40,7 +40,7 @@ public class WorkerRegister
      * @param worker object to be added to register
      * @return Confirmation that the object has been added
      */
-    public boolean addWorker(ArrayList<WorkerRoles> roles, String name, String userName, String password, WorkerType type)
+    public boolean addWorker(WorkerRoles[] roles, String[] name, String userName, String password, WorkerType type)
     {
         // check that a worker with this username does not already exist and that its username is unique
         if (!workerReg.containsKey(userName))
@@ -116,10 +116,10 @@ public class WorkerRegister
             Worker worker = entry.getValue();
             
             // check if all worker types are required or if it matches the type to search for
-            if(workType == null || worker.getWorkerType() == workType)
+            if(workType != null && worker.getWorkerType() == workType)
             {
                 // check if the worker does the role looking for
-                if(worker.confirmDoesRole(role))
+                if(role == null || worker.confirmDoesRole(role))
                 {
                     // if so add to list
                     workersFound.add(worker);

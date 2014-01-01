@@ -10,6 +10,9 @@ import java.util.ArrayList;
  */
 public class Staff extends Worker
 {
+    private String firstName;
+    private String lastName;
+    
     /**
      * 
      * @param roles Roles that the staff member carries out
@@ -17,17 +20,16 @@ public class Staff extends Worker
      * @param userName System username for the staff member
      * @param password System Password for the staff member
      */
-    public Staff(ArrayList<WorkerRoles> roles, String name, String userName, String password)
+    public Staff(WorkerRoles[] roles, String[] name, String userName, String password)
     {
-        this.roles = roles;
-        this.name = name;
-        this.userName = userName;
-        this.password = password;
+        super(roles,userName, password);
+        firstName = name[0];
+        lastName = name[1];
     }
     
     @Override
     public String getName() {
-        return name;
+        return firstName + " " + lastName;
     }
 
     @Override

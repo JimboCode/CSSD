@@ -1,30 +1,41 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package UI;
 
 import BLL.Worker;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 
 /**
- *
+ * Main window that initiates all other operations for the user
  * @author James Staite
  */
-public class MainMDIUI extends javax.swing.JFrame {
-
+public class MainMDIUI extends javax.swing.JFrame
+{
+    // hold a reference to the user that is logged in and authoristed.
     private Worker user;
+    
+    // flags this is the first and main instances - used for exiting
+    boolean mainInstance;
+    
     /**
      * Creates new form MainMDIUI
      */
     public MainMDIUI() {
         initComponents();
-        this.setExtendedState(Frame.MAXIMIZED_BOTH);  
+        this.setExtendedState(Frame.MAXIMIZED_BOTH); 
+        // hook up window events
+        this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent ev) {
+                checkClosingWindow();
+            }
+        });
     }
 
     /**
@@ -39,9 +50,12 @@ public class MainMDIUI extends javax.swing.JFrame {
         desktopPane = new javax.swing.JDesktopPane();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
+        newInstanceMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
         taskMenu = new javax.swing.JMenu();
         createClientMenuItem = new javax.swing.JMenuItem();
+        createProjectMenuItem = new javax.swing.JMenuItem();
+        defineTeamMenuItem = new javax.swing.JMenuItem();
         editMenu = new javax.swing.JMenu();
         cutMenuItem = new javax.swing.JMenuItem();
         copyMenuItem = new javax.swing.JMenuItem();
@@ -51,13 +65,22 @@ public class MainMDIUI extends javax.swing.JFrame {
         contentMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Post Production Media Management");
+        setIconImage(getIconImage());
 
         menuBar.setName(""); // NOI18N
 
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
+
+        newInstanceMenuItem.setText("New Instance");
+        newInstanceMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newInstanceMenuItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(newInstanceMenuItem);
 
         exitMenuItem.setMnemonic('x');
         exitMenuItem.setText("Exit");
@@ -80,6 +103,22 @@ public class MainMDIUI extends javax.swing.JFrame {
             }
         });
         taskMenu.add(createClientMenuItem);
+
+        createProjectMenuItem.setText("Create Project");
+        createProjectMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createProjectMenuItemActionPerformed(evt);
+            }
+        });
+        taskMenu.add(createProjectMenuItem);
+
+        defineTeamMenuItem.setText("Define Project Team");
+        defineTeamMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                defineTeamMenuItemActionPerformed(evt);
+            }
+        });
+        taskMenu.add(defineTeamMenuItem);
 
         menuBar.add(taskMenu);
 
@@ -136,17 +175,21 @@ public class MainMDIUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
-        int action = JOptionPane.showConfirmDialog(MainMDIUI.this, "Do you really want to exit the application?", "Confirm Exit", JOptionPane.OK_CANCEL_OPTION);
-        if (action == JOptionPane.OK_OPTION) System.exit(0);
+        checkClosingWindow();
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
     private void createClientMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createClientMenuItemActionPerformed
+        // create and add create client form
         CreateClientUI frm = new CreateClientUI();
         desktopPane.add(frm);
+                
+        // center form and display it
         Dimension desktopSize = desktopPane.getSize();
         Dimension jInternalFrameSize = frm.getSize();
         frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,(desktopSize.height- jInternalFrameSize.height)/2);
         frm.setVisible(true);
+        
+        // give the new form focus
         try {
             frm.setSelected(true);
         } catch (PropertyVetoException ex) {
@@ -154,16 +197,69 @@ public class MainMDIUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_createClientMenuItemActionPerformed
 
+    private void createProjectMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createProjectMenuItemActionPerformed
+        // create and add create client form
+        CreateProjectUI frm = new CreateProjectUI(user);
+        desktopPane.add(frm);
+        
+        // center form and display it
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,(desktopSize.height- jInternalFrameSize.height)/2);
+        frm.setVisible(true);
+        
+        // give the new form focus
+        try {
+            frm.setSelected(true);
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(MainMDIUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_createProjectMenuItemActionPerformed
+
+    private void defineTeamMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_defineTeamMenuItemActionPerformed
+        // create and add create client form
+        DefineTeamUI frm = new DefineTeamUI(null);
+        desktopPane.add(frm);
+        
+        // center form and display it
+        Dimension desktopSize = desktopPane.getSize();
+        Dimension jInternalFrameSize = frm.getSize();
+        frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,(desktopSize.height- jInternalFrameSize.height)/2);
+        frm.setVisible(true);
+        
+        // give the new form focus
+        try {
+            frm.setSelected(true);
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(MainMDIUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_defineTeamMenuItemActionPerformed
+
+    private void newInstanceMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newInstanceMenuItemActionPerformed
+        // Create and setup the main UI form
+        java.awt.EventQueue.invokeLater(new Runnable() 
+        {
+            @Override
+            public void run() 
+            {
+                // create and display main form UI
+                MainMDIUI mainform = new MainMDIUI();
+                mainform.setVisible(true);
+                
+                // start login dialog
+                mainform.start(false);
+            }
+        });
+    }//GEN-LAST:event_newInstanceMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
-    public void start()
+    public void start(boolean mainInstance)
     {
         // create Login dialog
-        System.out.println("MainMDIUI Creating LoginUI");
         LoginUI login = new LoginUI();
         
-        System.out.println("MainMDIUI Calling getIDandPassword");
         // request user details and set the field in the main UI for reference
         user = login.getIDandPassword();
 
@@ -187,7 +283,9 @@ public class MainMDIUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem contentMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem createClientMenuItem;
+    private javax.swing.JMenuItem createProjectMenuItem;
     private javax.swing.JMenuItem cutMenuItem;
+    private javax.swing.JMenuItem defineTeamMenuItem;
     private javax.swing.JMenuItem deleteMenuItem;
     private javax.swing.JDesktopPane desktopPane;
     private javax.swing.JMenu editMenu;
@@ -195,7 +293,32 @@ public class MainMDIUI extends javax.swing.JFrame {
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenuBar menuBar;
+    private javax.swing.JMenuItem newInstanceMenuItem;
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JMenu taskMenu;
     // End of variables declaration//GEN-END:variables
+
+    private void checkClosingWindow()
+    {
+        int action = JOptionPane.showConfirmDialog(MainMDIUI.this, "Do you really want to exit the application?", "Confirm Exit", JOptionPane.OK_CANCEL_OPTION);
+        if (action == JOptionPane.OK_OPTION)
+        {
+            if (mainInstance == false)
+            {
+                this.dispose();
+//                Window window = SwingUtilities.getWindowAncestor(this);
+//                window.setVisible( false );
+//                    // OR
+//                window.dispose();
+//                    // OR
+//                WindowListener[] windowListeners = window.getWindowListeners();
+//                windowListeners[0].windowClosing( null );
+            }
+            else
+            {
+                System.exit(0);
+            }
+        }
+    }
+
 }

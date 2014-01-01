@@ -107,6 +107,7 @@ public class LoginUI
                 messageType = JOptionPane.ERROR_MESSAGE;
                 lblInvalidID.setText("Invalid username or password - check and try again");
                 lblInvalidID.setForeground(Color.red);
+                txtPassword.setText("");
             }
             // Get User input
             if(JOptionPane.showOptionDialog(null, messagePanel, 

@@ -5,6 +5,8 @@ import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 
 /**
  *
@@ -22,6 +24,22 @@ public class CreateClientUI extends javax.swing.JInternalFrame {
         txtClientName.requestFocusInWindow();
         // set Create Record button as the window default
         this.getRootPane().setDefaultButton(btnCreateRecord);
+        txtClientName.addCaretListener(new CaretListener() 
+        {
+            @Override
+            public void caretUpdate(CaretEvent e) 
+            {
+                if(txtClientName.getText().length() > 0 )
+                {
+                    btnCreateRecord.setEnabled(true);
+                }
+                else
+                {
+                    btnCreateRecord.setEnabled(false);
+                }
+
+            }
+        });
     }
 
     /**
@@ -56,6 +74,7 @@ public class CreateClientUI extends javax.swing.JInternalFrame {
         lblTel.setText("Telephone:");
 
         btnCreateRecord.setText("Create Record");
+        btnCreateRecord.setEnabled(false);
         btnCreateRecord.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCreateRecordActionPerformed(evt);
@@ -132,7 +151,7 @@ public class CreateClientUI extends javax.swing.JInternalFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCreateRecord)
                     .addComponent(btnCancel))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         pack();
@@ -146,14 +165,28 @@ public class CreateClientUI extends javax.swing.JInternalFrame {
             ClientRegister clientReg = ClientRegister.getInstance();
         
             // create new client
-            clientReg.addClient(txtClientName.getText(), txtAddLine1.getText(), txtAddLine2.getText(), txtAddLine3.getText(), txtAddLine4.getText(), txtPostCode.getText(), txtTelephone.getText());
-        
-            // close form
-            try {
-                this.setClosed(true);
-            } catch (PropertyVetoException ex) {
-                Logger.getLogger(CreateClientUI.class.getName()).log(Level.SEVERE, null, ex);
+            boolean created = clientReg.addClient(txtClientName.getText(), txtAddLine1.getText(), txtAddLine2.getText(), txtAddLine3.getText(), txtAddLine4.getText(), txtPostCode.getText(), txtTelephone.getText());
+            
+            if (created == false)
+            {
+                String[] options = {"OK"};
+                JOptionPane.showOptionDialog(this,
+                       "This client already exists - Unable to create the new record","Client Record Exists",
+                       JOptionPane.PLAIN_MESSAGE,
+                       JOptionPane.ERROR_MESSAGE,
+                       null,
+                       options,
+                       options[0]);
             }
+            else
+            {
+                // close form
+                try {
+                    this.setClosed(true);
+                } catch (PropertyVetoException ex) {
+                    Logger.getLogger(CreateClientUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }            
         }
         else
         {
@@ -169,7 +202,6 @@ public class CreateClientUI extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_btnCreateRecordActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        
         // close form
         try {
             this.setClosed(true);

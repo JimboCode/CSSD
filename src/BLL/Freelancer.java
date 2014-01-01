@@ -9,6 +9,9 @@ import java.util.ArrayList;
  */
 public class Freelancer extends Worker
 {
+    private String firstName;
+    private String lastName;
+    
     /**
      * Setup Freelancer
      * @param roles Arraylist of valid roles
@@ -16,12 +19,11 @@ public class Freelancer extends Worker
      * @param userName Individuals username for authentication
      * @param password Individuals password for authentication
      */
-    public Freelancer(ArrayList<WorkerRoles> roles, String name, String userName, String password)
+    public Freelancer(WorkerRoles[] roles, String[] name, String userName, String password)
     {
-        this.roles = roles;
-        this.name = name;
-        this.userName = userName;
-        this.password = password;
+        super(roles,userName, password);
+        firstName = name[0];
+        lastName = name[1];
     }
     
     /**
@@ -30,7 +32,7 @@ public class Freelancer extends Worker
      */
     @Override
     public String getName() {
-        return name;
+        return firstName + " " + lastName;
     }
 
     /**

@@ -7,6 +7,7 @@ package BLL;
  */
 public enum WorkerRoles 
 {
+    ALL,
     AUTHOR,
     QC,
     PROJECT_MANAGER,
@@ -22,7 +23,7 @@ public enum WorkerRoles
             value += word + " ";
         }
         value = value.replace("Qc", "Quality Control");
-        return value;
+        return value.trim();
  }
 
 }

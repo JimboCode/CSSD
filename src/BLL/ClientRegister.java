@@ -99,4 +99,9 @@ public class ClientRegister
         }
         return null;
     }
+    
+    public ArrayList<Client> getClientList()
+    {
+        return clientReg;
+    }
 }
