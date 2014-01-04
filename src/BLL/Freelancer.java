@@ -19,9 +19,9 @@ public class Freelancer extends Worker
      * @param userName Individuals username for authentication
      * @param password Individuals password for authentication
      */
-    public Freelancer(WorkerRoles[] roles, String[] name, String userName, String password)
+    public Freelancer(WorkerRoles role, String[] name, String userName, String password)
     {
-        super(roles,userName, password);
+        super(role,userName, password);
         firstName = name[0];
         lastName = name[1];
     }

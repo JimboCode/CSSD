@@ -4,13 +4,14 @@
 package BLL;
 
 import java.util.ArrayList;
+import java.util.Observable;
 
 /**
  * Lazy loading singleton
  * @author James Staite
  * @version 1.0.0
  */
-public class ClientRegister 
+public class ClientRegister extends Observable
 {
     // single instance of this class
     private static ClientRegister uniqueInstance;
@@ -58,6 +59,10 @@ public class ClientRegister
             
             // add new client record
             clientReg.add(client);
+            
+            // notify client added
+            raiseChangedEvent();
+            
             return true;
         }
         return false;        
@@ -73,12 +78,37 @@ public class ClientRegister
         // check that the object existing
         if (clientReg.contains(client))
         {
-            // remove worker object and confirm action
-            clientReg.remove(client);
-            return true;
+            // check that the client has no projects before removing them
+            ProjectRegister proReg = ProjectRegister.getInstance();
+            if (proReg.doesClientHaveProjects(client))
+            {
+                return false;
+            }
+            else
+            {
+                // remove worker object and confirm action
+                clientReg.remove(client);
+
+                // notify client removed
+                raiseChangedEvent();
+
+                return true;
+            }
         }
         // item not found
         return false;
+    }
+    
+    /**
+     * Raises event to notify observers that the contents of the register have changed
+     */
+    private void raiseChangedEvent()
+    {
+        // flag change
+        setChanged();
+        
+        // send notification - not sending any data object to observers - operating a pull model
+        notifyObservers();
     }
     
     /**
@@ -100,8 +130,20 @@ public class ClientRegister
         return null;
     }
     
+    /**
+     *  Returns a collection of clients
+     * @return ArrayList of clients
+     */    
     public ArrayList<Client> getClientList()
     {
         return clientReg;
+    }
+
+    /**
+     * provides the number of clients
+     * @return number of clients
+     */
+    public int getNumberOfClients() {
+        return clientReg.size();
     }
 }

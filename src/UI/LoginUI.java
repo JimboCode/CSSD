@@ -117,7 +117,7 @@ public class LoginUI
                                             null, ConnectOptionNames, 
                                             ConnectOptionNames[0]) != 0) 
             {
-                System.exit(0);
+                return null;
             }
             
             worker = register.checkPassword(txtUsername.getText(), txtPassword.getText());

@@ -15,6 +15,8 @@ import ca.odell.glazedlists.swing.EventTableModel;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
@@ -24,40 +26,50 @@ import javax.swing.event.ListSelectionListener;
 
 
 /**
- *
+ * UI for defining and updating project team
+ * 
  * @author James Staite
  */
-public class DefineTeamUI extends javax.swing.JInternalFrame {
-
+public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
+{
+    // master list of avaliable workers on the system
     private ArrayList<Worker> allWorkers = new ArrayList();
     
+    // list of avaliable workers that are not currently assigned to the project
     private EventList avaliableWorkers = new BasicEventList();
     
+    // list of current workers assigend to the project
     private EventList currentTeam = new BasicEventList();
     
+    // used to filter the view of the avaliableWorkers list by work role for display on the form
     private WorkerRoleMatcherEditor matcherEditor = new WorkerRoleMatcherEditor();
     private FilterList filteredAvaliableWorkers = new FilterList(avaliableWorkers, matcherEditor);
     
+    // overall list of additions and omission from the currentTeam
     private ArrayList<Worker> addToTeamList = new ArrayList();
     private ArrayList<Worker> removeFromTeamList = new ArrayList();
-        
+    
+    // Actionlistner for selections of row in the current team table
     private ListSelectionListener tabTeamListner = new ListSelectionListener()
     {
         @Override
         public void valueChanged(ListSelectionEvent e) {
             // check if a worker with task has been selected for removal
+            
+            // get list of selected items & iterate over them
             int[] selection = tabTeam.getSelectedRows();
             for(int item: selection)
             {
+                //convert list ref to worker object
                 WorkerWrapper worker = (WorkerWrapper)currentTeam.get(tabTeam.convertRowIndexToModel(item));
                 
-                // check number of tasks
+                // check number of tasks for worker
                 if(worker.getNumberOfTasks() > 0 )
                 {
-                    // deselect individual
+                    // deselect workers with tasks assigned to them
                     tabTeam.getSelectionModel().removeSelectionInterval(item, item);
                     
-                    // display message explaining why individual cannot be selected.
+                    // display message explaining why worker cannot be selected.
                     JOptionPane.showMessageDialog(DefineTeamUI.this, "Indivduals with tasks cannot be removed","Information",JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -75,6 +87,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         }
     };
     
+    // Actionlistner for selections of row in the available workerstable
     private ListSelectionListener tabAvaliableListner = new ListSelectionListener()
     {
         @Override
@@ -95,51 +108,63 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
 
     
     /**
-     * Creates new DefineTeamUI form
+     * Instancates a new DefineTeamUI form
      */
     public DefineTeamUI(Project project) {
         super("Define Project Team",false,true,false,false);
         initComponents();
+        
+        // load initial form data
         loadFormData();
+        
+        // set the project combo to the passed in project if avaliable
         if (project != null) cmbProject.setSelectedItem(project);
     }
     
+    /**
+     * Loads initial form data
+     */
     private void loadFormData()
     {
         // check that there is at least one project defined
         ProjectRegister proReg = ProjectRegister.getInstance();
-        if (proReg.getProjectList().isEmpty())
-        {
-            JOptionPane.showMessageDialog(this, "There are no projects to allocate staff to.\nCreate a project first","Information",JOptionPane.ERROR_MESSAGE);
-            try {
-                this.setClosed(true);
-            } catch (PropertyVetoException ex) {
-                Logger.getLogger(DefineTeamUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-            // load avaliable projects
-            loadProjectCombo();
         
-            // get reference to worker register
-            WorkerRegister workerReg = WorkerRegister.getInstance();
+        // load avaliable projects
+        loadProjectCombo();
 
-            // load QC team leaders
-            loadQCTeamLeaderCombo(workerReg);
+        // get reference to worker register
+        WorkerRegister workerReg = WorkerRegister.getInstance();
 
-            // load roles to filter by
-            loadFilterByRoleCombo();
+        // load QC team leaders
+        loadQCTeamLeaderCombo(workerReg);
 
-            // load arraylist avaliableWorkers with all workers except managers and QC team leaders
-            getAllWorkers(workerReg);
+        // load roles to filter by
+        loadFilterByRoleCombo();
 
-            // setup formatting etc. for avaliable workers table
-            setupAvaliableTable();
+        // load arraylist avaliableWorkers with all workers except managers and QC team leaders
+        getAllWorkers(workerReg);
 
-            // setup formatting etc. for current project team table
-            setupCurrentTeamTable();
+        // setup formatting etc. for avaliable workers table
+        setupAvaliableTable();
 
-            // initialise controls data
-            loadTeamTable();  
+        // setup formatting etc. for current project team table
+        setupCurrentTeamTable();
+
+        // initialise controls data
+        loadTeamTable();
+
+        // register for BLL events
+        registerEvents();
+    }
+    
+    /**
+     * Register this form to receive observer events when projects are added or removed
+     */
+    private void registerEvents()
+    {
+        // get reference to project register and register for events
+        ProjectRegister proReg = ProjectRegister.getInstance();
+        proReg.addObserver(this);
     }
 
     /**
@@ -341,10 +366,19 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Re-populates the other form controls when the project combo box selects a project to display
+     * @param evt event arguments
+     */
     private void cmbProjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbProjectActionPerformed
+        // load form details for the selected team
         loadTeamTable();
     }//GEN-LAST:event_cmbProjectActionPerformed
 
+    /**
+     * Closes the form without updating any worker changes
+     * @param evt event arguments
+     */
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         try {
             this.setClosed(true);
@@ -353,6 +387,10 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnCancelActionPerformed
 
+    /**
+     * Adds selected workers to the current team
+     * @param evt event arguments
+     */
     private void btnAddWorkersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddWorkersActionPerformed
         // get array of selected items
         int[] selection = tabAvaliableWorkers.getSelectedRows();
@@ -363,28 +401,35 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         // clear selection from table
         tabAvaliableWorkers.clearSelection();
         
-        // convert index to a collection of objects
+        // convert selection list into a collection of objects
         for(int item: selection)
         {
             tempList.add((Worker) avaliableWorkers.get(tabAvaliableWorkers.convertRowIndexToModel(item)));
         }
         
-        // add objects
+        // wrap the workers in WorkerWrapper from the templist and add to the currentTeam
         Project project = (Project)cmbProject.getSelectedItem();
         for(Worker item: tempList)
         {
+            // WorkerWrapper associates the current project with the worker so that
+            // current team table can display the number of tasks for this project
             currentTeam.add(new WorkerWrapper(project,item));
         }
         
-        // remove objects
+        // remove workers from the avaliable list
         avaliableWorkers.removeAll(tempList);
         
-        // add workers to the add list
+        // add workers to the overall add list for updating the Project object later
         addToTeamList.addAll(tempList);
         
+        // enable / disable the Team Complete btn based upon there being any updates
         updateTeamCompleteBtnStatus();
     }//GEN-LAST:event_btnAddWorkersActionPerformed
 
+    /**
+     * Removes selected workers to the current team
+     * @param evt event arguments
+     */
     private void btnRemoveWorkersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveWorkersActionPerformed
         // get array of selected items
         int[] selection = tabTeam.getSelectedRows();
@@ -395,23 +440,26 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         // clear selection from table
         tabTeam.clearSelection();
         
-        // convert index to a collection of objects
+        // convert index of selections to a collection of objects
         for(int item: selection)
         {
             tempList.add((WorkerWrapper) currentTeam.get(tabTeam.convertRowIndexToModel(item)));
         }
         
-        // add and remove objects + update the overall remove list
+        // add and remove workers + update the overall remove list
         for(WorkerWrapper item: tempList)
         {
+            // remove form current team
             currentTeam.remove(item);
+            
+            // add the worker back the avaliable list as a Worker
             avaliableWorkers.add(item.getWorker());
             
-            // add worker to the remove list
+            // add worker to the overallremove list for updating Project later
             removeFromTeamList.add(item.getWorker());
         }
         
-        // check that the overall list do not contain duplicates
+        // check that the overall lists do not contain duplicates e.g add worker1 & remove worker1
         Iterator<Worker> iterator = removeFromTeamList.iterator();
         while(iterator.hasNext())
         {
@@ -425,28 +473,45 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
             }
         }
         
+        // enable / disable the Team Complete btn based upon there being any updates
         updateTeamCompleteBtnStatus();
     }//GEN-LAST:event_btnRemoveWorkersActionPerformed
 
+    /**
+     *  toggles the enabled state of the update team button based upon there being any updates to the team
+     */
     private void updateTeamCompleteBtnStatus() 
     {
-         if(addToTeamList.isEmpty() && removeFromTeamList.isEmpty())
-         {
-             btnTeamComplete.setEnabled(false);
-         }
-         else
-         {
-             btnTeamComplete.setEnabled(true);
-         }
+        // if both lists are empty then disable the update team btn; otherwise enable it 
+        if(addToTeamList.isEmpty() && removeFromTeamList.isEmpty())
+        {
+            btnTeamComplete.setEnabled(false);
+        }
+        else
+        {
+            btnTeamComplete.setEnabled(true);
+        }
     }
-       
+    
+    /**
+     * Updates changes to the project team and closes the form
+     * 
+     * @param evt event arguments
+     */
     private void btnTeamCompleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTeamCompleteActionPerformed
+        // get reference to the project to update
         Project project = (Project)cmbProject.getSelectedItem();
         
+        // set the QC team leader
         project.setQC_TeamLeader((Staff) cmbQC_TeamLeader.getSelectedItem());
         
+        // pass in the overall lists of additions and omission of workers
+        // returns false if the list of workers to be removed contained a 
+        // worker that had assigned task - this can happen between being added
+        // for removal and the user committing the update
         if (project.updateWorkers(addToTeamList,removeFromTeamList))
         {
+            // if all updates succeeded the close the form
             try {
                 this.setClosed(true);
             } catch (PropertyVetoException ex) {
@@ -455,6 +520,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         }
         else
         {
+            // because a worker was requested to be removed that had assigned tasks
             // reload status of project team after attempted update
             loadTeamTable();
             
@@ -463,22 +529,41 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         } 
     }//GEN-LAST:event_btnTeamCompleteActionPerformed
 
+    /**
+     * Filter the avaliable workers table based upon the FilterByRole combo
+     * @param evt event arguments
+     */
     private void cmbFilterByRoleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbFilterByRoleActionPerformed
+        // clear any selection made from the avaliable workers table before filtering
         tabTeam.clearSelection();
+        
+        // get the role to filter the table by
         WorkerRoles role = (WorkerRoles)cmbFilterByRole.getSelectedItem();
+        
+        // raise the update list event with the new role to filter by
         matcherEditor.updateList(role);
     }//GEN-LAST:event_cmbFilterByRoleActionPerformed
 
+    /**
+     * Re-populates the form based upon the project selected in the project combo
+     */
     private void loadTeamTable()
     {
+        // get the current project
         Project project = (Project)cmbProject.getSelectedItem();
+        
+        // clear the current team list
         currentTeam.clear();
         
+        // get the list of worker from the project & add to the current team
+        // wrapped in WorkerWrapper, so that they display their number of tasks
         for(Worker worker: project.getWorkers())
         {
             currentTeam.add(new WorkerWrapper(project, worker));
         }
         
+        // set the text on the update button
+        // set to "create" if the current team list is empty else "update"
         if(currentTeam.isEmpty())
         {
             btnTeamComplete.setText("Create Team");
@@ -489,11 +574,13 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         }
                 
         // reset the avaliable team members
+        // clear current contents
         avaliableWorkers.clear();
-        // load all avaliable worker
+        
+        // load a full list of workers
         avaliableWorkers.addAll(allWorkers);
         
-        // remove worker that are already part of the team
+        // remove workers that are already part of the team
         for(Object worker: currentTeam)
         {
             WorkerWrapper item = (WorkerWrapper) worker;
@@ -522,11 +609,17 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
     private javax.swing.JTable tabTeam;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Loads project combo box with the avaliable projects
+     */
     private void loadProjectCombo() {
-        // load projects combo box
+        // get ref to project register
         ProjectRegister proReg = ProjectRegister.getInstance();
+        
+        // create a new model
         DefaultComboBoxModel projectComboModel = new DefaultComboBoxModel();
-               
+        
+        // load the model and set the combo box to the new model
         for(Project project: proReg.getProjectList())
         {
             projectComboModel.addElement(project);
@@ -534,26 +627,36 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         cmbProject.setModel(projectComboModel);
     }
     
+    /**
+     * Loads all of the avaliable QC Team Leaders into the QC Team Leader Combo
+     * @param workerReg Reference to the WorkerRegister object
+     */
     private void loadQCTeamLeaderCombo(WorkerRegister workerReg)
     {
-        // load QC TeamLeaders 
+        // create a new model
         DefaultComboBoxModel qCTeamLeadersModel = new DefaultComboBoxModel();
                
-        // find and add all QC Team leaders
+        // find and add all QC Team leaders using findByRole to filter result
         for(Worker worker: workerReg.findByRole(WorkerRoles.QC_TEAM_LEADER, WorkerType.STAFF))
         {
             qCTeamLeadersModel.addElement(worker);
         }
+        
         // set combo box model to loaded data
         cmbQC_TeamLeader.setModel(qCTeamLeadersModel);
     }
     
+    /**
+     * Load the filterByRole combo box with the avaliable roles - but excluding 
+     * QC Team Leaders and Project Managers
+     */
     private void loadFilterByRoleCombo()
     {
-        // load staff roles
+        // Create a new model
         DefaultComboBoxModel workerRolesModel = new DefaultComboBoxModel();
         
         // find all staff that are not managers or QC Team Leaders
+        // iterate over the enum add each except mangers and QC Team Leaders
         for(WorkerRoles role :WorkerRoles.values())
         {
             if(role != WorkerRoles.QC_TEAM_LEADER && role != WorkerRoles.PROJECT_MANAGER)
@@ -561,31 +664,42 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
                 workerRolesModel.addElement(role);
             }
         }
+        
         // set the filter by role combobox to roles less Manager and QC Team Leaders found
         cmbFilterByRole.setModel(workerRolesModel);
     }
     
+    /**
+     * Load all avaliable workers into allWorkers except Project Managers and QC Team Leaders
+     * @param workerReg Reference to the WorkerRegister object
+     */
     private void getAllWorkers(WorkerRegister workerReg)
     {
         // find all staff that are not managers or QC Team Leaders
+        // iterate over all roles
         for(WorkerRoles role :WorkerRoles.values())
         {
+            // only use the role if it is not Project Manager or QC Team Leader
             if(role != WorkerRoles.QC_TEAM_LEADER && role != WorkerRoles.PROJECT_MANAGER)
             {
-                // Add all the elements
+                // Add all the workers to the list that match the search
                 allWorkers.addAll(workerReg.findByRole(role, WorkerType.STAFF));
             }
         }
-        // find and add freelancers
+        
+        // find and add all freelancers
         allWorkers.addAll(workerReg.findByRole(null, WorkerType.FREELANCER));
     }
     
+    /**
+     * Setup the GlazedList table objects for avaliable workers table
+     */
     private void setupAvaliableTable()
     {
         // set table format for the avaliable staff table
         TableFormat tableFormat = GlazedLists.tableFormat(Worker.class,
             // Names of the properties to fetch
-            new String[] {"Name","Role","NumProjects","WorkerType"},
+            new String[] {"Name","RoleDescription","NumProjects","WorkerType"},
             // Names for the columns
             new String[] {"Name", "Work Role","No. Projects","Employment Type"});
         
@@ -595,12 +709,15 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         tabAvaliableWorkers.getSelectionModel().addListSelectionListener(tabAvaliableListner);
     }
     
+    /**
+     * Setup the GlazedList table objects for the current team table
+     */
     private void setupCurrentTeamTable()
     {
         // set table format for the avaliable staff table
         TableFormat tableFormat = GlazedLists.tableFormat(WorkerWrapper.class,
             // Names of the properties to fetch
-            new String[] {"Name","Role","NumProjects","NumberOfTasks","WorkerType"},
+            new String[] {"Name","RoleDescription","NumProjects","NumberOfTasks","WorkerType"},
             // Names for the columns
             new String[] {"Name", "Work Role","No. Projects","No. of Tasks","Employment Type"});
         
@@ -609,20 +726,49 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
         tabTeam.setModel(tableModel);
         tabTeam.getSelectionModel().addListSelectionListener(tabTeamListner);
     }
+
+    /**
+     * Receives notifications of subscribed events
+     * @param object the object raising the events
+     * @param arg any parameters being passed by the object raising the events
+     */
+    @Override
+    public void update(Observable object, Object arg) {
+        // check to see if the object is the RrojectRegister
+        if (object instanceof ProjectRegister)
+        {
+            // Events only rasied for additions of omission of projects
+            // reload the avaliable projects
+            loadProjectCombo();
+        }
+    }
     
+    /**
+     * Class used for the filtering of the avaliable workers by role within this form
+     */
     private static class WorkerRoleMatcherEditor extends AbstractMatcherEditor 
     {
+        /**
+         * Raise the event to update the filtered list of avaliable workers by the filter
+         * @param filter A WorkersRoles as a filter criteria
+         */
         public void updateList(WorkerRoles filter)
         {
-            //final String nationality = (String) this.nationalityChooser.getSelectedItem();
+            // check if no filter required
             if (filter == WorkerRoles.ALL)
+                // clear filter and match all
                 this.fireMatchAll();
             else
+                // filter by the filter and create a RolerMatcher for the job
                 this.fireChanged(new RoleMatcher(filter));
         }
 
+        /**
+         * Class used to carry out filter matching by GlazedLists
+         */
         private static class RoleMatcher implements Matcher 
         {
+            // role to filter by
             private WorkerRoles role;
 
             public RoleMatcher(WorkerRoles filter) 
@@ -630,10 +776,18 @@ public class DefineTeamUI extends javax.swing.JInternalFrame {
                 this.role = filter;
             }
 
+            /**
+             * provides matching functionality for each object
+             * @param item the object to be matched
+             * @return boolean of the match
+             */
             public boolean matches(Object item) 
             {
+                // convert the object to its true type
                 final Worker worker = (Worker) item;
-                return this.role.toString().equals(worker.getRole());
+                
+                // returns true if the worker matches the role passed into the object
+                return this.role.equals(worker.getRole());
             }
         }
     }

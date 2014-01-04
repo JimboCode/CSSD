@@ -10,7 +10,12 @@ public enum WorkerType {
     CONTRACTOR,
     FREELANCER;
     
-    @Override public String toString() 
+    /**
+     * Provides a displayable string of the enum
+     * @return displayable string
+     */
+    @Override
+    public String toString() 
     {
         //only capitalize the first letter
         String s = super.toString();

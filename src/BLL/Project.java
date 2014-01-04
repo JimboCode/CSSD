@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- *
+ * Defines a project
  * @author James Staite
- * @version 1.0.0
+ * @version 1.0.2
  */
 public class Project 
 {
@@ -27,6 +27,15 @@ public class Project
     // QC Team leader for the project    
     private Staff qC_TeamLeader;
     
+    /**
+     * Creates a project
+     * @param projectName Name of Project
+     * @param discTitle Name of the disc
+     * @param client The client of the project
+     * @param region The region of the disc to be produced
+     * @param projectManager The project manager
+     * @param dueDate The due date of the project
+     */    
     public Project(String projectName, String discTitle, Client client, Region region, Worker projectManager, Date dueDate)
     {
         this.projectName = projectName;
@@ -37,29 +46,54 @@ public class Project
         this.dueDate = dueDate;
     }
     
+    /**
+     * Returns the name of the project
+     * @return project name
+     */
     public String getName()
     {
         return projectName;
     }
     
+    /**
+     * Returns the project manager
+     * @return project manager
+     */
     public Staff getManager()
     {
         return manager;
     }
     
+    /**
+     * Returns the project client
+     * @return project client
+     */
+    public Client getClient()
+    {
+        return client;
+    }
+    
+    /**
+     * Provides QC Team Leader
+     * @return QC Team Leader
+     */
     public Staff getQC_TeamLeader()
     {
         return qC_TeamLeader;
     }
     
+    /**
+     * Set the project QC Team Leader
+     * @param qC_TeamLeader QC Team Leader
+     */
     public void setQC_TeamLeader(Staff qC_TeamLeader)
     {
         this.qC_TeamLeader = qC_TeamLeader;
     }
     
     /**
-     *
-     * @return
+     * Provides a ArrayList of Workers assigned to the Project
+     * @return ArrayList of Workers
      */
     public ArrayList<Worker> getWorkers()
     {
@@ -68,13 +102,23 @@ public class Project
         return temp;
     }
     
+    /**
+     * Adds and Removes Workers from the current project team
+     * @param addWorkers ArrayList of Worker to add
+     * @param removeWorkers ArrayList of Worker to remove
+     * @return boolean confirming if all Workers where removed and did not have any tasks assigned to them
+     */
     public boolean updateWorkers(ArrayList<Worker> addWorkers, ArrayList<Worker> removeWorkers)
     {
         // add new workers to project team
         for(Worker worker: addWorkers)
         {
-            team.add(worker);
-            worker.assignProject(this);
+            // check worker is not already apart of the team
+            if (!team.contains(worker))
+            {
+                team.add(worker);
+                worker.assignProject(this);
+            }
         }
                 
         // only remove workers from the team that have no tasks
@@ -87,8 +131,12 @@ public class Project
             }
             else
             {
-                team.remove(worker);
-                worker.removeProject(this);
+                // check worker is apart of the existing team
+                if (team.contains(worker))
+                {
+                    team.remove(worker);
+                    worker.removeProject(this);
+                }   
             }
         }
         
@@ -96,11 +144,19 @@ public class Project
         return ok;
     }
     
+    /**
+     * Provides the TaskList for this Project
+     * @return TaskList object
+     */
     public TaskList getTaskList()
     {
         return tasklist;
     }
     
+    /**
+     * Displays the project name for the Project
+     * @return project name
+     */
     @Override
     public String toString()
     {

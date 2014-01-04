@@ -1,9 +1,8 @@
 package BLL;
 
-import java.util.ArrayList;
-
 /**
- *
+ * Creates all worker objects
+ * 
  * @author James Staite
  * @version 1.0.0
  */
@@ -18,19 +17,21 @@ public class WorkerFactory
      * @param type Type of worker - see WorkerType Enum
      * @return The Worker class
      */
-    public static Worker createWorker(WorkerRoles[] roles, String[] name, String userName, String password, WorkerType type)
+    public static Worker createWorker(WorkerRoles role, String[] name, String userName, String password, WorkerType type)
     {
         Worker worker = null;
+        
+        // create the appropiate Worker type
         switch (type)
         {
             case STAFF:
-                worker = new Staff(roles, name, userName, password);
+                worker = new Staff(role, name, userName, password);
                 break;
             case CONTRACTOR:
-                worker = new Contractor(roles, name, userName, password);
+                worker = new Contractor(role, name, userName, password);
                 break;
             case FREELANCER:
-                worker = new Freelancer(roles, name, userName, password);
+                worker = new Freelancer(role, name, userName, password);
                 break;    
         }
         return worker;

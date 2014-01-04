@@ -40,13 +40,13 @@ public class WorkerRegister
      * @param worker object to be added to register
      * @return Confirmation that the object has been added
      */
-    public boolean addWorker(WorkerRoles[] roles, String[] name, String userName, String password, WorkerType type)
+    public boolean addWorker(WorkerRoles role, String[] name, String userName, String password, WorkerType type)
     {
         // check that a worker with this username does not already exist and that its username is unique
         if (!workerReg.containsKey(userName))
         {
             // create worker
-            Worker worker = WorkerFactory.createWorker(roles, name, userName, password, type);
+            Worker worker = WorkerFactory.createWorker(role, name, userName, password, type);
             
             // add new worker object
             workerReg.put(worker.userName, worker);

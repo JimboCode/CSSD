@@ -13,7 +13,16 @@ public enum WorkerRoles
     PROJECT_MANAGER,
     QC_TEAM_LEADER;
     
-    @Override public String toString() {
+    /**
+     * Provides a displayable string of the enum
+     * @return displayable string
+     */
+    @Override
+    public String toString()
+    {
+        // strips the _ and replaces with " "
+        // Capitalises the first letter
+        // Replaces QC with Quality Control
         String value = super.toString();
         String words[] = value.split("_");
         value = "";

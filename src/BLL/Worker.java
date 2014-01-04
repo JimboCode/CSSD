@@ -1,8 +1,6 @@
 package BLL;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * Base class for all workers e.g. staff, sub-contractors, etc.
@@ -13,73 +11,71 @@ import java.util.Iterator;
 public abstract class Worker 
 {
     // list of roles that this worker can carry out
-    protected ArrayList<WorkerRoles> roles;
+    protected WorkerRoles role;
     
     // User credenticals
     protected String userName;
     protected String password;
     
     // Assigned Tasks
-    protected ArrayList<AssignedTasks> assignedTasks = new ArrayList();
+    protected ArrayList<AssignedTasks> projectTaskLists = new ArrayList();
     
-   
-    Worker(WorkerRoles[] roles, String userName, String password)
+    /**
+     * Creates a Worker
+     * @param role WorkerRole of the Worker
+     * @param userName login username
+     * @param password login password
+     */
+    Worker(WorkerRoles role, String userName, String password)
     {
-        this.roles = new ArrayList<> (Arrays.asList(roles));
+        this.role = role;
         this.userName = userName;
         this.password = password;
     }
     
     /**
-     * 
+     * Worker Name
      * @return The name of the worker e.g. James Smith or Video Films Inc. 
      */
     public abstract String getName();
     
     /**
-     * 
+     * Provides the worker type
      * @return The type of worker this is e.g. Staff, SubContractor, etc.
      */
     public abstract WorkerType getWorkerType();
     
     /**
-     * 
+     * Confirms if the worker does this role
      * @param role A role to check if this worker does
      * @return Confirmation if this worker does this role
      */
     public boolean confirmDoesRole(WorkerRoles role)
     {
-        if (roles.contains(role)) return true;
+        if (this.role.equals(role)) return true;
         return false;
     }
     
-    public String getRole()
-    {
-        String jobs = "";
-        for(WorkerRoles role: roles)
-        {
-            jobs += role.toString() + " ";
-        }
-        return jobs.trim();
-    }
-    
     /**
-     * 
+     * Provides a text description of the worker role
      * @return A string array of the worker roles
      */
-    public ArrayList<String> getRoles()
+    public String getRoleDescription()
     {
-        ArrayList<String> jobs = new ArrayList();
-        for (Iterator<WorkerRoles> it = roles.iterator(); it.hasNext();) 
-        {
-            WorkerRoles role = it.next();
-            jobs.add(role.toString());
-        }
-        return jobs;
+        return role.toString();
     }
     
     /**
-     * 
+     * Provides a enum of the worker role
+     * @return enum WorkerRoles of workers job role
+     */
+    public WorkerRoles getRole()
+    {
+        return role;
+    }
+    
+    /**
+     * Checks the users password against the password provided
      * @param password The password to check if correct for this worker
      * @return Confirmation if password is correct
      */
@@ -100,7 +96,7 @@ public abstract class Worker
         if (taskList == null)
         {
             // create a new task list because one does not exist
-            assignedTasks.add(new AssignedTasks(project));
+            projectTaskLists.add(new AssignedTasks(project));
         }
     }
     
@@ -118,7 +114,7 @@ public abstract class Worker
             // check that they are no tasks assigned for this project
             if (taskList.getNumberOfTasks() == 0)
             {
-                assignedTasks.remove(taskList);
+                projectTaskLists.remove(taskList);
             }
         }
     }
@@ -139,6 +135,11 @@ public abstract class Worker
         }
     }
     
+    /**
+     * Provide the number of tasks assigned to the worker for the given project
+     * @param project project for which the number of tasks are to be provided
+     * @return number of tasks assigned
+     */
     public int getNumberOfTasks(Project project)
     {
         // check there is a task list for this project
@@ -151,10 +152,14 @@ public abstract class Worker
         return 0;
     }
     
-    // finds tasklist for the give project
+    /**
+     * Provides the TaskList for the give project
+     * @param project project to get task list for
+     * @return TaskList
+     */
     private AssignedTasks getTaskList(Project project)
     {
-        for(AssignedTasks listItem: assignedTasks)
+        for(AssignedTasks listItem: projectTaskLists)
         {
             if (listItem.getProject().equals(project))
             {
@@ -164,37 +169,64 @@ public abstract class Worker
         return null;
     }
     
+    /**
+     * Provides the Worker name
+     * @return name of worker
+     */
     @Override
     public String toString()
     {
         return getName();
     }
     
+    /**
+     * Provides the number of projects that the Worker has been assigned to
+     * @return Number of assigned project
+     */
     public int getNumProjects()
     {
-        return assignedTasks.size();
+        return projectTaskLists.size();
     }  
     
+    /**
+     * Class used to TaskLists for each project
+     */
     private class AssignedTasks
     {
         private Project project;
         private ArrayList<TaskItem> taskItems = new ArrayList();
         
+        /**
+         * Creates a new TaskList for the given project
+         * @param project The project
+         */
         public AssignedTasks(Project project)
         {
             this.project = project;
         }
         
+        /**
+         * Adds a task to the worker project TaskList
+         * @param task Task to add
+         */
         public void addTask(TaskItem task)
         {
             taskItems.add(task);
         }
         
+        /**
+         * Provides the number of Tasks assigned
+         * @return number of tasks
+         */
         public int getNumberOfTasks()
         {
             return taskItems.size();
         }
         
+        /**
+         * Provide the project for which this TaskList is for
+         * @return project
+         */
         public Project getProject()
         {
             return project;

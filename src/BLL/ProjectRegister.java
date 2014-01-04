@@ -2,13 +2,14 @@ package BLL;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Observable;
 
 /**
  *
  * @author James Staite
- * @version 1.0.0
+ * @version 1.0.1
  */
-public class ProjectRegister 
+public class ProjectRegister extends Observable
 {
     // To improve multithreading and because this class is always required
     // the instance is initialised immediately
@@ -53,6 +54,10 @@ public class ProjectRegister
             
             // add new client record
             projectReg.add(project);
+            
+            // notify project added
+            raiseChangedEvent();
+            
             return project;
         }
         return null;        
@@ -63,17 +68,33 @@ public class ProjectRegister
      * @param project Project object to be removed
      * @return Confirmation record found and removed
      */
-    public boolean removeClient(Project project)
+    public boolean removeProject(Project project)
     {
         // check that the object existing
         if (projectReg.contains(project))
         {
             // remove worker object and confirm action
             projectReg.remove(project);
+            
+            // notify project removed
+            raiseChangedEvent();
+            
             return true;
         }
         // item not found
         return false;
+    }
+    
+    /**
+     * Raises events for the observers that projects have been added or removed
+     */
+    private void raiseChangedEvent()
+    {
+        // flag changes
+        setChanged();
+        
+        // not sending any data object to observers - operating a pull model
+        notifyObservers();
     }
     
     /**
@@ -102,5 +123,28 @@ public class ProjectRegister
     public ArrayList<Project> getProjectList()
     {
         return projectReg;
-    }    
+    }
+    
+    /**
+     * Confirms if a client has projects assigned to them
+     * @param client Client to be checked
+     * @return boolean true - client does have projects; else false
+     */
+    public boolean doesClientHaveProjects(Client client)
+    {
+        for(Project project: projectReg)
+        {
+            if (project.getClient().equals(client)) return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Provides the total number of current projects 
+     * @return number of projects
+     */
+    public int getNumberOfProjects()
+    {
+        return projectReg.size();
+    }
 }

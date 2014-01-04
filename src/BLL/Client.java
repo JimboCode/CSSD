@@ -16,7 +16,7 @@ public class Client
     private String postCode;
     
     /**
-     * 
+     * Creates a new client instance
      * @param name Client name
      * @param addLine1 Address
      * @param addLine2 Address

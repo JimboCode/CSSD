@@ -8,13 +8,14 @@ import BLL.Region;
 import BLL.Staff;
 import BLL.Worker;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.beans.PropertyVetoException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
@@ -31,17 +32,24 @@ import javax.swing.text.MaskFormatter;
  * @author James Staite
  * @version 1.0.0
  */
-public class CreateProjectUI extends javax.swing.JInternalFrame {
-
+public class CreateProjectUI extends javax.swing.JInternalFrame implements Observer
+{
     // Reference to user from Main UI
     private Staff manager;
+    
+    // Reference to main UI
+    private MainMDIUI mainform;
     
     /**
      * Creates new form CreateProjectUI
      */
-    public CreateProjectUI(Worker user) {
+    public CreateProjectUI(Worker user, MainMDIUI mainform)
+    {
         super("Create New Project Details",false,true,false,false);
         initComponents();
+        
+        // hold reference to main UI
+        this.mainform = mainform;
         
         // set default button
         this.getRootPane().setDefaultButton(btnDefineTeam);
@@ -54,15 +62,8 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         }
         cmbRegion.setModel(regionComboModel);
         
-        // load client combox with client details
-        DefaultComboBoxModel clientComboModel = new DefaultComboBoxModel();
-        
         ClientRegister clientReg = ClientRegister.getInstance();
-        for(Client client: clientReg.getClientList())
-        {
-            clientComboModel.addElement(client);
-        }
-        cmbClient.setModel(clientComboModel);
+        loadClientCombo(clientReg);
         
         // Set default date tomorrow
         Date today = new Date();        
@@ -73,7 +74,7 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         txtManager.setText(user.getName());
         manager = (Staff)user;
         
-        // setup validation events for required fields
+        // setup validation action listner events for required fields
         txtProjectName.addCaretListener(new CaretListener() 
         {
             @Override
@@ -100,6 +101,38 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
                 CreateProjectUI.this.validiateForm();
             }
         });
+        
+        // register for BLL events
+        registerEvents();
+    }
+    
+    /**
+     * Loads clients into the client combo box
+     * @param clientReg Reference to the ClientRegister
+     */
+    private void loadClientCombo(ClientRegister clientReg)
+    {
+        // load client combox with client details
+        DefaultComboBoxModel clientComboModel = new DefaultComboBoxModel();
+        
+        // load model with clients
+        for(Client client: clientReg.getClientList())
+        {
+            clientComboModel.addElement(client);
+        }
+        
+        // set combo to new model
+        cmbClient.setModel(clientComboModel);
+    }
+    
+    /*
+     * registers for update events to the ClientRegister
+     */
+    private void registerEvents()
+    {
+        // get reference to client register and register for events
+        ClientRegister clientReg = ClientRegister.getInstance();
+        clientReg.addObserver(this);
     }
 
     /**
@@ -253,6 +286,10 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Closes the form
+     * @param evt event argument
+     */
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         // close form
         try {
@@ -262,6 +299,10 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnCancelActionPerformed
 
+    /**
+     * Creates the project team and opens the Define Project Team UI
+     * @param evt event arguments
+     */
     private void btnDefineTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDefineTeamActionPerformed
         // get reference to client register
         ProjectRegister projectReg = ProjectRegister.getInstance();
@@ -269,7 +310,9 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         // check if the project already exists
         if(projectReg.findbyName(txtProjectName.getText()) == null)
         {
+            // set the project name background colour to the default
             txtProjectName.setBackground(UIManager.getColor( "Panel.background"));
+            
             // Warn user that the project will be created
             int answer = JOptionPane.showConfirmDialog(this, "Before you can define the project team the\nproject must be created, confirm you wish to create the project.","Information",JOptionPane.OK_CANCEL_OPTION);
 
@@ -280,11 +323,7 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
 
                 // create Define Project Team Form
                 DefineTeamUI frm = new DefineTeamUI(project);
-                this.getDesktopPane().add(frm);
-                Dimension desktopSize = getDesktopPane().getSize();
-                Dimension jInternalFrameSize = frm.getSize();
-                frm.setLocation((desktopSize.width - jInternalFrameSize.width)/2,(desktopSize.height- jInternalFrameSize.height)/2);
-                frm.setVisible(true);
+                mainform.addForm(frm);
                 // close form
                 try {
                     this.setClosed(true);
@@ -295,11 +334,18 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         }
         else
         {        
+            // highlight the project name as being at fault
             txtProjectName.setBackground(Color.YELLOW);
+            
+            // explain the project already exists
             JOptionPane.showMessageDialog(this, "A project with this name already exists. \nUnable to create this project again","Information",JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnDefineTeamActionPerformed
 
+    /**
+     * Creates new project 
+     * @param evt event argument
+     */
     private void btnCreateProjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateProjectActionPerformed
         // get reference to client register
         ProjectRegister projectReg = ProjectRegister.getInstance();
@@ -307,16 +353,24 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         // create new client
         Project created = projectReg.addProject(txtProjectName.getText(), txtDiscTitle.getText(), (Client)cmbClient.getSelectedItem(), (Region)cmbRegion.getSelectedItem(), manager, (Date)ftxtCompletionDate.getValue());
 
+        // null returned if project was not created because it already exists
         if (created == null)
         {
+            // highlight the project name filed
             txtProjectName.setBackground(Color.YELLOW);
+            
+            // explain that the project already exists
             JOptionPane.showMessageDialog(this, "A project with this name already exists. \nUnable to create this project again","Information",JOptionPane.ERROR_MESSAGE);
         }
         else
         {
-            // close form
+            // set the project name field background to the default colour
             txtProjectName.setBackground(UIManager.getColor( "Panel.background"));
+            
+            // confirm that the project was created
             JOptionPane.showMessageDialog(this, "Project has been created","Information",JOptionPane.INFORMATION_MESSAGE);
+            
+            // close the form
             try {
                 this.setClosed(true);
             } catch (PropertyVetoException ex) {
@@ -325,19 +379,25 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_btnCreateProjectActionPerformed
 
+    /**
+     * Validates the form and only enables the create buttons when the form is valid
+     */
     private void validiateForm()
     {
+        // assume state is valid
         boolean invalid = false;
         
         // check project name entered
         if (txtProjectName.getText().length() == 0)
         {
-             invalid = true;
+            // invalid form state 
+            invalid = true;
         } 
         
         // check disc title entered
         if (txtDiscTitle.getText().length() == 0)
         {
+            // invlaid form state
             invalid = true;
         }
         
@@ -345,9 +405,11 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
         Date date = (Date)ftxtCompletionDate.getValue();
         if (!date.after(Calendar.getInstance().getTime()))
         {
+            // invlaid form state
             invalid = true;
         }
         
+        // enable create button if form valid
         if (invalid)
         {
             btnCreateProject.setEnabled(false);
@@ -376,4 +438,22 @@ public class CreateProjectUI extends javax.swing.JInternalFrame {
     private javax.swing.JTextField txtManager;
     private javax.swing.JTextField txtProjectName;
     // End of variables declaration//GEN-END:variables
+
+    /**
+     * Receives update observable events from Client Register (e.g. clients added / removed)
+     * @param object Object raising the event
+     * @param arg event argument
+     */
+    @Override
+    public void update(Observable object, Object arg) {
+        // check if ClientRegister event
+        if (object instanceof ClientRegister)
+        {
+            // cast Object as ClientRegister
+            ClientRegister clientReg = (ClientRegister) object;
+            
+            // reload the avaliable clients into the combo box
+            loadClientCombo(clientReg);
+        }
+    }
 }

@@ -15,10 +15,19 @@ public enum Region
     CHINA_6,
     INTERNATIONAL_8;
     
-    @Override public String toString() {
+    /**
+     * Takes description and turns it into a displayable string
+     * @return description
+     */
+    @Override 
+    public String toString() 
+    {
+        // strip regional value from the end
         String value = super.toString();
         String words[] = value.split("_");
         int region = Integer.parseInt(words[1]);
+        
+        // use regional value to provide string
         switch (region)
         {
             case 0:
