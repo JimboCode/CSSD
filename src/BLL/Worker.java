@@ -30,7 +30,7 @@ public abstract class Worker
     {
         this.role = role;
         this.userName = userName;
-        this.password = password;
+        this.password = Encrypter.encrypt(password);
     }
     
     /**
@@ -81,7 +81,7 @@ public abstract class Worker
      */
     public boolean checkPassword(String password)
     {
-        if (this.password.equals(password)) return true;
+        if (this.password.equals(Encrypter.encrypt(password))) return true;
         return false;
     }
     
