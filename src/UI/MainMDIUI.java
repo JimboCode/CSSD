@@ -128,7 +128,7 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
             }
             case QC_TEAM_LEADER:
             {
-                //setupUIQC_TeamLeader();
+                setupUIQC_TeamLeader();
                 break;
             }
         }
@@ -603,7 +603,8 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
      */
     private void contentMenuItemActionPerformed(ActionEvent evt) 
     {
-    
+        DefineContentUI frm = new DefineContentUI();
+        addForm(frm);
     }
     
     /**

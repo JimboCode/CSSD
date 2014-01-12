@@ -108,7 +108,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
 
     
     /**
-     * Instancates a new DefineTeamUI form
+     * Instantiates a new DefineTeamUI form
      */
     public DefineTeamUI(Project project) {
         super("Define Project Team",false,true,false,false);
@@ -167,6 +167,16 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
         proReg.addObserver(this);
     }
 
+    /**
+     * Register this form to receive observer events when projects are added or removed
+     */
+    private void deregisterEvents()
+    {
+        // get reference to project register and register for events
+        ProjectRegister proReg = ProjectRegister.getInstance();
+        proReg.deleteObserver(this);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -380,6 +390,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
      * @param evt event arguments
      */
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        deregisterEvents();
         try {
             this.setClosed(true);
         } catch (PropertyVetoException ex) {
@@ -512,6 +523,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
         if (project.updateWorkers(addToTeamList,removeFromTeamList))
         {
             // if all updates succeeded the close the form
+            deregisterEvents();
             try {
                 this.setClosed(true);
             } catch (PropertyVetoException ex) {
@@ -781,6 +793,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
              * @param item the object to be matched
              * @return boolean of the match
              */
+            @Override
             public boolean matches(Object item) 
             {
                 // convert the object to its true type

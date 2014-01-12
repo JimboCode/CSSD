@@ -12,7 +12,6 @@ import java.beans.PropertyVetoException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
@@ -80,7 +79,7 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
             @Override
             public void caretUpdate(CaretEvent e) 
             {
-                CreateProjectUI.this.validiateForm();
+                validiateForm();
             }
         });
         
@@ -89,7 +88,7 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
             @Override
             public void caretUpdate(CaretEvent e) 
             {
-                CreateProjectUI.this.validiateForm();
+                validiateForm();
             }
         });
         
@@ -98,7 +97,7 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
             @Override
             public void caretUpdate(CaretEvent e) 
             {
-                CreateProjectUI.this.validiateForm();
+                validiateForm();
             }
         });
         
@@ -133,6 +132,13 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
         // get reference to client register and register for events
         ClientRegister clientReg = ClientRegister.getInstance();
         clientReg.addObserver(this);
+    }
+    
+    private void deregisterEvents()
+    {
+        // get reference to client register and register for events
+        ClientRegister clientReg = ClientRegister.getInstance();
+        clientReg.deleteObserver(this);
     }
 
     /**
@@ -291,6 +297,8 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
      * @param evt event argument
      */
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        //remove events
+        deregisterEvents();
         // close form
         try {
             this.setClosed(true);
@@ -324,6 +332,8 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
                 // create Define Project Team Form
                 DefineTeamUI frm = new DefineTeamUI(project);
                 mainform.addForm(frm);
+                // remove events
+                deregisterEvents();
                 // close form
                 try {
                     this.setClosed(true);
@@ -370,6 +380,8 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
             // confirm that the project was created
             JOptionPane.showMessageDialog(this, "Project has been created","Information",JOptionPane.INFORMATION_MESSAGE);
             
+            // remove events
+            deregisterEvents();
             // close the form
             try {
                 this.setClosed(true);

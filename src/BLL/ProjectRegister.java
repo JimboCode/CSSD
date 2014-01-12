@@ -1,7 +1,9 @@
 package BLL;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Observable;
 
 /**
@@ -120,9 +122,9 @@ public class ProjectRegister extends Observable
      * Provides a list of all the project records
      * @return ArrayList of Project records
      */
-    public ArrayList<Project> getProjectList()
+    public List<Project> getProjectList()
     {
-        return projectReg;
+        return Collections.unmodifiableList(projectReg);
     }
     
     /**

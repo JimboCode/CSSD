@@ -18,7 +18,7 @@ public class CreateClientUI extends javax.swing.JInternalFrame {
      * Creates new form CreateClientUI
      */
     public CreateClientUI() {
-        super("Create New Client Details",false,false,false,false);
+        super("Create New Client Details",false,true,false,false);
         initComponents();
         // set first field to get focus on startup
         txtClientName.requestFocusInWindow();

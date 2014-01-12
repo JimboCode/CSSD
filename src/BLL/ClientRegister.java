@@ -4,6 +4,8 @@
 package BLL;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Observable;
 
 /**
@@ -134,9 +136,9 @@ public class ClientRegister extends Observable
      *  Returns a collection of clients
      * @return ArrayList of clients
      */    
-    public ArrayList<Client> getClientList()
+    public List<Client> getClientList()
     {
-        return clientReg;
+        return Collections.unmodifiableList(clientReg);
     }
 
     /**

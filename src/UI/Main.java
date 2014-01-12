@@ -1,16 +1,27 @@
 package UI;
 
+import BLL.Client;
 import BLL.ClientRegister;
+import BLL.ComponentType;
+import BLL.ContentManager;
+import BLL.MediaItem;
+import BLL.NodeType;
+import BLL.Project;
+import BLL.ProjectRegister;
+import BLL.Region;
+import BLL.Worker;
 import BLL.WorkerRegister;
 import BLL.WorkerRoles;
 import BLL.WorkerType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Main entry point into the application
  * @author James Staite
  */
 public class Main {
-
     /**
      * Main enter point to the application
      * 
@@ -76,6 +87,9 @@ public class Main {
         register.addWorker(WorkerRoles.QC, new String[]{"Terry","Richardson"}, "T.Richardson", "Password", WorkerType.FREELANCER);
         register.addWorker(WorkerRoles.QC, new String[]{"Mark","Johnson"}, "M.Johnson", "Password", WorkerType.FREELANCER);
         
+         ArrayList<Worker> managers = register.findByName(WorkerRoles.PROJECT_MANAGER, WorkerType.STAFF, "James Staite");
+         Worker JamesStaite = managers.get(0);
+        
         // Create some clients
         ClientRegister clientReg = ClientRegister.getInstance();
         
@@ -83,6 +97,25 @@ public class Main {
         clientReg.addClient("20th Century Fox", "Century City", "California", "USA","", "","01 6514 2726758");
         clientReg.addClient("Metro-Goldwyn-Mayer", "Golden Towers", "Darnell", "Sheffield","", "S9 6GT","0114 245986");
         
+        List<Client> client = clientReg.getClientList();
+        Client DreamWorks = (Client) client.get(0);
+        
         // Create some Projects
+        ProjectRegister projectReg = ProjectRegister.getInstance();
+
+        // create new client
+        Project created = projectReg.addProject("Film", "Disc 1", DreamWorks, Region.EUROPE_2, JamesStaite, new Date());
+        
+        // create content tree
+        ContentManager contentManager = created.getContentManger();
+        MediaItem root = contentManager.getTree();
+        MediaItem element1 = contentManager.addItem("Element 1", "", ComponentType.NONE, NodeType.ELEMENT, root);
+        MediaItem element2 = contentManager.addItem("Element 2", "", ComponentType.NONE, NodeType.ELEMENT, element1);
+        MediaItem element3 = contentManager.addItem("Element 3", "", ComponentType.NONE, NodeType.ELEMENT, element2);
+        MediaItem element4 = contentManager.addItem("Element 4", "", ComponentType.NONE, NodeType.ELEMENT, element3);
+        MediaItem Asset1 = contentManager.addItem("Asset1", "", ComponentType.NONE, NodeType.ASSET, element4);
+        MediaItem element5 = contentManager.addItem("Element 5", "", ComponentType.NONE, NodeType.ELEMENT, root);
+        MediaItem element6 = contentManager.addItem("Element 6", "", ComponentType.NONE, NodeType.ELEMENT, element5);
+        MediaItem Asset2 = contentManager.addItem("Asset2", "", ComponentType.NONE, NodeType.ASSET, element6);
     }
 }

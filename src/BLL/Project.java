@@ -1,7 +1,9 @@
 package BLL;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Defines a project
@@ -17,6 +19,9 @@ public class Project
     private Region region;
     private Staff manager;
     private Date dueDate;
+    
+    // Disc content structure
+    private ContentManager content;
     
     // Task associated with this project
     private TaskList tasklist;
@@ -44,6 +49,7 @@ public class Project
         this.region = region;
         manager = (Staff) projectManager;
         this.dueDate = dueDate;
+        content = new ContentManager(this);
     }
     
     /**
@@ -95,11 +101,9 @@ public class Project
      * Provides a ArrayList of Workers assigned to the Project
      * @return ArrayList of Workers
      */
-    public ArrayList<Worker> getWorkers()
+    public List<Worker> getWorkers()
     {
-        ArrayList<Worker> temp = new ArrayList();
-        temp.addAll(team);
-        return temp;
+        return Collections.unmodifiableList(team);
     }
     
     /**
@@ -161,5 +165,10 @@ public class Project
     public String toString()
     {
         return projectName;
+    }
+    
+    public ContentManager getContentManger()
+    {
+        return content;
     }
 }
