@@ -1,7 +1,5 @@
 package BLL;
 
-import java.util.ArrayList;
-
 /**
  * Contractor is a type of worker used
  * @author James Staite

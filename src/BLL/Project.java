@@ -50,6 +50,7 @@ public class Project
         manager = (Staff) projectManager;
         this.dueDate = dueDate;
         content = new ContentManager(this);
+        tasklist = new TaskList(content, this);
     }
     
     /**
@@ -104,6 +105,35 @@ public class Project
     public List<Worker> getWorkers()
     {
         return Collections.unmodifiableList(team);
+    }
+    
+    public ArrayList findWorkersByRole(WorkerRoles role)
+    {
+        // create list to pass back
+        ArrayList workersFound = new ArrayList();
+        
+        // Iterate over collection of Workers
+        for(Worker worker: team)
+        {
+            // check if all worker types are required or if it matches the type to search for
+            if(worker.getRole() == role)
+            {
+                // if so add to list
+                workersFound.add(worker);
+            }
+        }
+        // return list of found workers
+        return workersFound;
+    }
+    
+    public boolean isWorkerOnTeam(Worker user)
+    {
+        // Iterate over collection of Workers
+        for(Worker worker: team)
+        {
+            if (user == worker) return true;
+        }
+        return false;
     }
     
     /**

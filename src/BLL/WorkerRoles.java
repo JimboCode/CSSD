@@ -9,9 +9,12 @@ public enum WorkerRoles
 {
     ALL,
     AUTHOR,
+    INTERRUPTER,
     QC,
     PROJECT_MANAGER,
-    QC_TEAM_LEADER;
+    QC_TEAM_LEADER,
+    CONTRACTOR,
+    CLIENT;
     
     /**
      * Provides a displayable string of the enum

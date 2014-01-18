@@ -68,10 +68,12 @@ public class Main {
         // Create some system users
         WorkerRegister register = WorkerRegister.getInstance();
         
-        register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"James","Staite"}, "James.Staite", "Password",WorkerType.STAFF);
+        Worker JamesStaite = register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"James","Staite"}, "James.Staite", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"Sam","Pickstone"}, "S.Pickstone", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"Sarah","Murfet"}, "S.Murfet", "Password",WorkerType.STAFF); 
 
+        register.addWorker(WorkerRoles.INTERRUPTER, new String[]{"Rachel","Jones"}, "R.Jones", "Password",WorkerType.STAFF);
+                
         register.addWorker(WorkerRoles.QC, new String[]{"John","Smith"}, "J.Smith", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.QC, new String[]{"Richard","Brown"}, "R.Brown", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.QC, new String[]{"David","Hudson"}, "D.Hudson", "Password",WorkerType.STAFF);
@@ -86,9 +88,14 @@ public class Main {
         
         register.addWorker(WorkerRoles.QC, new String[]{"Terry","Richardson"}, "T.Richardson", "Password", WorkerType.FREELANCER);
         register.addWorker(WorkerRoles.QC, new String[]{"Mark","Johnson"}, "M.Johnson", "Password", WorkerType.FREELANCER);
+        register.addWorker(WorkerRoles.AUTHOR, new String[]{"Richard","Featherstone"}, "R.Feathersstone", "Password", WorkerType.FREELANCER);
+        register.addWorker(WorkerRoles.AUTHOR, new String[]{"John","Hawke"}, "J.Hawke", "Password", WorkerType.FREELANCER);
         
-         ArrayList<Worker> managers = register.findByName(WorkerRoles.PROJECT_MANAGER, WorkerType.STAFF, "James Staite");
-         Worker JamesStaite = managers.get(0);
+        register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Video Productions"}, "Video Productions", "Password", WorkerType.CONTRACTOR);
+        register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Audio Specialist"}, "Audio Specialist", "Password", WorkerType.CONTRACTOR);
+        register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"3D Animations"}, "3D Animations", "Password", WorkerType.CONTRACTOR);
+        register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Digital Audio Services"}, "Digital Audio Services", "Password", WorkerType.CONTRACTOR);
+        register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Video Mastering"}, "Video Mastering", "Password", WorkerType.CONTRACTOR);
         
         // Create some clients
         ClientRegister clientReg = ClientRegister.getInstance();
@@ -104,18 +111,53 @@ public class Main {
         ProjectRegister projectReg = ProjectRegister.getInstance();
 
         // create new client
-        Project created = projectReg.addProject("Film", "Disc 1", DreamWorks, Region.EUROPE_2, JamesStaite, new Date());
+        Project created = projectReg.addProject("TV Series", "Disc 1", DreamWorks, Region.EUROPE_2, JamesStaite, new Date());
         
         // create content tree
         ContentManager contentManager = created.getContentManger();
         MediaItem root = contentManager.getTree();
-        MediaItem element1 = contentManager.addItem("Element 1", "", ComponentType.NONE, NodeType.ELEMENT, root);
-        MediaItem element2 = contentManager.addItem("Element 2", "", ComponentType.NONE, NodeType.ELEMENT, element1);
-        MediaItem element3 = contentManager.addItem("Element 3", "", ComponentType.NONE, NodeType.ELEMENT, element2);
-        MediaItem element4 = contentManager.addItem("Element 4", "", ComponentType.NONE, NodeType.ELEMENT, element3);
-        MediaItem Asset1 = contentManager.addItem("Asset1", "", ComponentType.NONE, NodeType.ASSET, element4);
-        MediaItem element5 = contentManager.addItem("Element 5", "", ComponentType.NONE, NodeType.ELEMENT, root);
-        MediaItem element6 = contentManager.addItem("Element 6", "", ComponentType.NONE, NodeType.ELEMENT, element5);
-        MediaItem Asset2 = contentManager.addItem("Asset2", "", ComponentType.NONE, NodeType.ASSET, element6);
+                
+        MediaItem Menus = contentManager.addItem("Disc Menus", "Menus System", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, root);
+        MediaItem Asset1 = contentManager.addItem("Menu sequence", "Menu art work", ComponentType.VIDEO, NodeType.ASSET, Menus);
+        Asset1 = contentManager.addItem("Menu backing track", "Backing track to menu system", ComponentType.AUDIO, NodeType.ASSET, Menus);
+        Asset1 = contentManager.addItem("Menu logic", "Java for menu system", ComponentType.JAVA, NodeType.ASSET, Menus);
+        
+        MediaItem episodeContent = contentManager.addItem("Episode Content", "Content for episodes", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, root);
+        
+        MediaItem episode1 = contentManager.addItem("Episode 1", "Episode 1", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episodeContent);
+        
+        MediaItem intro = contentManager.addItem("Episode Introduction", "Introduction titles", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episode1);
+        Asset1 = contentManager.addItem("Episode Introduction", "Introduction video", ComponentType.VIDEO, NodeType.ASSET, intro);
+        Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, intro);
+        
+        MediaItem Chapter1 = contentManager.addItem("Chapter 1", "Chapter 1 of Episode 1", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episode1);
+        Asset1 = contentManager.addItem("Freature video", "Video content", ComponentType.VIDEO, NodeType.ASSET, Chapter1);
+        Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, Chapter1);
+        Asset1 = contentManager.addItem("French Subtitles", "French Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter1);
+        Asset1 = contentManager.addItem("German Subtitles", "German Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter1);
+        
+        MediaItem Chapter2 = contentManager.addItem("Chapter 2", "Chapter 2 of Episode 1", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episode1);
+        Asset1 = contentManager.addItem("Freature video", "Video content", ComponentType.VIDEO, NodeType.ASSET, Chapter2);
+        Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, Chapter2);
+        Asset1 = contentManager.addItem("French Subtitles", "French Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter2);
+        Asset1 = contentManager.addItem("German Subtitles", "German Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter2);
+        
+        MediaItem episode2 = contentManager.addItem("Episode 2", "Episode 2", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episodeContent);
+        
+        intro = contentManager.addItem("Episode Introduction", "Introduction titles", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episode2);
+        Asset1 = contentManager.addItem("Episode Introduction", "Introduction video", ComponentType.VIDEO, NodeType.ASSET, intro);
+        Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, intro);
+        
+        Chapter1 = contentManager.addItem("Chapter 1", "Chapter 1 of Episode 2", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episode2);
+        Asset1 = contentManager.addItem("Freature video", "Video content", ComponentType.VIDEO, NodeType.ASSET, Chapter1);
+        Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, Chapter1);
+        Asset1 = contentManager.addItem("French Subtitles", "French Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter1);
+        Asset1 = contentManager.addItem("German Subtitles", "German Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter1);
+        
+        Chapter2 = contentManager.addItem("Chapter 2", "Chapter 2 of Episode 2", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episode2);
+        Asset1 = contentManager.addItem("Freature video", "Video content", ComponentType.VIDEO, NodeType.ASSET, Chapter2);
+        Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, Chapter2);
+        Asset1 = contentManager.addItem("French Subtitles", "French Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter2);
+        Asset1 = contentManager.addItem("German Subtitles", "German Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter2); 
     }
 }

@@ -1,7 +1,7 @@
 package BLL;
 
 /**
- * ContentManager tree update event argument object passed with details of the update
+ * ContentManager tree update event argument object passed with details of the event
  *
  * @author James Staite
  */

@@ -1,11 +1,15 @@
 package UI;
 
 import BLL.ComponentType;
+import BLL.MediaAsset;
 import BLL.MediaElement;
 import BLL.MediaItem;
+import BLL.MediaSource;
 import BLL.NodeType;
 import BLL.Project;
 import BLL.ProjectRegister;
+import BLL.Worker;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
@@ -36,6 +40,9 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
     
     // reference to the current selected tree node
     DefaultMutableTreeNode selectedNode;
+    
+    // reference to the form user
+    Worker user;
     
     // internal constants for the current state of the form
     private final int NOTSET = 0;
@@ -92,11 +99,13 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
     /**
      * Creates new form DefineContentUI
      */
-    public DefineContentUI() 
+    public DefineContentUI(Worker user) 
     {
         // set the form name and enable the close button
         super("Define Project Content",false,true,false,false);
         initComponents();
+        
+        this.user = user;
         
         // setup the tree
         setupTree();
@@ -112,6 +121,9 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         
         // load the media combo box
         loadMediaCombo();
+        
+        // load the media combo box
+        loadMediaSourceCombo();
         
         // initial load the controls state and data
         updatecontrols();
@@ -132,6 +144,21 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
             public void caretUpdate(CaretEvent e) 
             {
                 validiateNodeEntry();
+            }
+        });
+        
+        cmbMediaType.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // if an asset update the media source with the users selection if changed
+                validiateNodeEntry();
+            }
+        });
+        
+        cmbMediaSource.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if (status == CREATING || status == UPDATING) validiateNodeEntry();
             }
         });
         
@@ -240,7 +267,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         DefaultComboBoxModel projectComboModel = new DefaultComboBoxModel();
         
         // load the model and set the combo box to the new model
-        for(Project eachProject: proReg.getProjectList())
+        for(Project eachProject: proReg.getProjectList(user))
         {
             projectComboModel.addElement(eachProject);
         }
@@ -277,6 +304,20 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
             nodeTypeComboModel.addElement(type);
         }
         cmbMediaType.setModel(nodeTypeComboModel);
+    }
+    
+    private void loadMediaSourceCombo()
+    {
+        // create a new model
+        DefaultComboBoxModel nodeMediaSourceComboModel = new DefaultComboBoxModel();
+        
+         // load the model and set the combo box to the new model
+        for(MediaSource source: MediaSource.values())
+        {
+            if(source != MediaSource.ASSETS) nodeMediaSourceComboModel.addElement(source);
+        }
+        cmbMediaSource.setModel(nodeMediaSourceComboModel);
+        cmbMediaSource.setSelectedItem(null);
     }
     
     // updates the forms controls based upon the project in the project combo box
@@ -327,8 +368,10 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
     {
         txtName.setText("");
         txtDescription.setText("");
+        txtStatus.setText("");
         cmbNodeType.setSelectedItem(NodeType.ASSET);
         cmbMediaType.setSelectedIndex(0);
+        cmbMediaSource.setSelectedItem(null);
     }
     
     /**
@@ -364,6 +407,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
                 setDeleteControls(false);
                 setEditControls(false);
                 resetNodeEntryControls();
+                cmbMediaSource.setSelectedItem(null);
             }
             else
             {
@@ -371,12 +415,14 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
                 MediaItem mediaItem = (MediaItem) node.getUserObject();
                 txtName.setText(mediaItem.getName());
                 txtDescription.setText(mediaItem.getDescription());
+                txtStatus.setText(mediaItem.getStatus().toString());
+                cmbMediaType.setSelectedItem(mediaItem.getMediaType());
                 btnCreate.setEnabled(false);
                 btnCancel.setEnabled(false);
                 setEditControls(true);
                 
-                // TODO only enable if the node and any child does not have any tasks
-                setDeleteControls(true);
+                // only enabled if the node and any child does not have any tasks
+                setDeleteControls(mediaItem.canBeDeleted());
                 
                 // set the node type combo box based upon the node selected
                 if(mediaItem instanceof MediaElement)
@@ -384,18 +430,50 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
                     cmbNodeType.setSelectedItem(NodeType.ELEMENT);
                     // set controls so a user could add child
                     setNewControls(true);
+                    
+                    // check that the Assets is in the list and set the Media Source to Assets
+                    if (cmbMediaSource.getItemAt(0) != MediaSource.ASSETS)
+                    {
+                        cmbMediaSource.insertItemAt(MediaSource.ASSETS, 0);
+                    }
+                    cmbMediaSource.setSelectedItem(MediaSource.ASSETS);
                 }
                 else
                 {
                     cmbNodeType.setSelectedItem(NodeType.ASSET);
                     // set controls so a user could not add child
                     setNewControls(false);
+                    
+                    // seet the media source
+                    cmbMediaSource.setSelectedItem(mediaItem.getMediaSource());
                 }
             }  
         }
-        
     }
     
+    private void cmbNodeTypeChanged()
+    {
+        if (cmbNodeType.getSelectedItem() == NodeType.ELEMENT)
+        {
+            if (cmbMediaSource.getItemAt(0) != MediaSource.ASSETS)
+            {
+                cmbMediaSource.insertItemAt(MediaSource.ASSETS, 0);
+            }
+            cmbMediaSource.setSelectedItem(MediaSource.ASSETS);
+            cmbMediaSource.setEnabled(false);
+        }
+        else
+        {
+            if (cmbMediaSource.getItemAt(0).equals(MediaSource.ASSETS))
+            {
+                cmbMediaSource.removeItemAt(0);
+            }
+            cmbMediaSource.setEnabled(true);
+            MediaItem mediaNode = (MediaItem) selectedNode.getUserObject();
+            cmbMediaSource.setSelectedItem(mediaNode.getMediaSource());
+        }
+    }
+     
     /**
      * Initiates the creation of a new node
      */
@@ -423,6 +501,16 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         txtDescription.setEnabled(true);
         cmbMediaType.setEnabled(true);
         
+        // if Media Source combo list includes Assets remove it and then enable it
+        if (cmbMediaSource.getItemAt(0).equals(MediaSource.ASSETS))
+        {
+            cmbMediaSource.removeItemAt(0);
+        }
+        cmbMediaSource.setEnabled(true);
+        
+        // set the default option
+        cmbMediaSource.setSelectedItem(MediaSource.SUBCONTRACTOR);
+                
         // update buttons
         setNewControls(false);
         btnCancel.setEnabled(true);
@@ -441,6 +529,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         txtName.setEnabled(false);
         txtDescription.setEnabled(false);
         cmbMediaType.setEnabled(false);
+        cmbMediaSource.setEnabled(false);
         
         // reset buttons
         btnCreate.setEnabled(false);
@@ -463,11 +552,20 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
             // Get the information to create the new object
             NodeType nodeType = (NodeType)cmbNodeType.getSelectedItem();
             MediaItem parentNode = (MediaItem) selectedNode.getUserObject();
-            
+            MediaSource mediaSource = (MediaSource) cmbMediaSource.getSelectedItem();
+                        
             // create the new node
             MediaItem newNode = contentTree.addItem(txtName.getText(), txtDescription.getText(), (ComponentType) cmbMediaType.getSelectedItem(), nodeType, parentNode);
             
-            // get the display to display the new node
+            // if an asset update the media source with the users selected from it default
+            if(nodeType == NodeType.ASSET) 
+            {
+                System.out.println("Set media source " + mediaSource);
+                newNode.setMediaSource(mediaSource);
+                System.out.println("Media source is now set to " + newNode.getMediaSource());
+            }
+            
+            // get the tree to expand and display the new node
             contentTree.displayUserObject(newNode);
         }
         else
@@ -475,12 +573,20 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
             // get the user object from the selected node
             MediaItem node = (MediaItem) selectedNode.getUserObject();
             
-            // update the user objects information
-            node.setName(txtName.getText());
-            node.setDescription(txtDescription.getText());
+            // update the user objects information if changed
+            // only update changes to avoid unnecessary update events
+            if (!node.getName().equals(txtName.getText())) node.setName(txtName.getText());
+            if (!node.getDescription().equals(txtDescription.getText())) node.setDescription(txtDescription.getText());
+            if (cmbMediaType.isEnabled()) node.setMediaType((ComponentType) cmbMediaType.getSelectedItem());
             
-            // request the tree updates the node
-            contentTree.updateItem(node);
+            // if an asset update the media source with the users selection if changed
+            if(node instanceof MediaAsset) 
+            {
+                if (node.getMediaSource() != ((MediaSource) cmbMediaSource.getSelectedItem()))
+                {
+                    node.setMediaSource((MediaSource) cmbMediaSource.getSelectedItem());
+                }                
+            }
         }
                 
         // disable controls
@@ -488,6 +594,10 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         txtName.setEnabled(false);
         txtDescription.setEnabled(false);
         cmbMediaType.setEnabled(false);
+        cmbMediaSource.setEnabled(false);
+        
+        // check status
+        status = NOTSET;
         
         // Update Controls
         nodeSelected(selectedNode);
@@ -505,9 +615,6 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
             cancelCreation();
         }
         
-        // set the status to the current operation
-        status = UPDATING;
-        
         // update the finalise button text
         btnCreate.setText("Update");
         
@@ -515,8 +622,21 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         txtName.setEnabled(true);
         txtDescription.setEnabled(true);
         
-        //TODO only enable if the item does not have any tasks
-        cmbMediaType.setEnabled(true);
+        //Only enabled if the item does not have any tasks
+        MediaItem node = (MediaItem) selectedNode.getUserObject();
+        cmbMediaType.setEnabled(node.canSetMediaType());
+        
+        // Only enabled Media Source if it can be edited
+        if (node.canMediaSourceBeChanged())
+        {
+            // remove assests as an option if in list
+            if (cmbMediaSource.getItemAt(0).equals(MediaSource.ASSETS))
+            {
+                cmbMediaSource.removeItemAt(0);
+            }
+            cmbMediaSource.setEnabled(true);
+            cmbMediaSource.setSelectedItem(node.getMediaSource());
+        }   
         
         // update buttons
         setNewControls(false);
@@ -526,6 +646,10 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         
         // set focus
         txtName.requestFocusInWindow();
+        
+        // set the status to the current operation
+        status = UPDATING;
+        
     }
     
     /**
@@ -567,7 +691,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
             invalid = true;
         }
         
-        // enable create button if form valid
+       // enable create button if form valid
         if (invalid)
         {
             btnCreate.setEnabled(false);
@@ -644,6 +768,10 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         btnCancel = new javax.swing.JButton();
         btnCreate = new javax.swing.JButton();
         btnEdit = new javax.swing.JButton();
+        lblMediaSource = new javax.swing.JLabel();
+        cmbMediaSource = new javax.swing.JComboBox();
+        lblStatus = new javax.swing.JLabel();
+        txtStatus = new javax.swing.JTextField();
 
         btnCloseForm.setText("Close");
         btnCloseForm.addActionListener(new java.awt.event.ActionListener() {
@@ -682,6 +810,11 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
 
         cmbNodeType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Element", "Asset" }));
         cmbNodeType.setEnabled(false);
+        cmbNodeType.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbNodeTypeActionPerformed(evt);
+            }
+        });
 
         jLabel4.setText("Media");
 
@@ -728,6 +861,15 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
             }
         });
 
+        lblMediaSource.setText("Media Source");
+
+        cmbMediaSource.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbMediaSource.setEnabled(false);
+
+        lblStatus.setText("Status");
+
+        txtStatus.setEnabled(false);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -743,27 +885,28 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
                         .addComponent(btnEdit)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCancel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
                         .addComponent(btnCreate))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblName)
-                                    .addComponent(lblType))
-                                .addGap(31, 31, 31)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtName)
-                                    .addComponent(cmbNodeType, 0, 258, Short.MAX_VALUE)))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblDescription)
-                                    .addComponent(jLabel4))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
-                                    .addComponent(cmbMediaType, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(lblName)
+                            .addComponent(lblType))
+                        .addGap(41, 41, 41)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtName)
+                            .addComponent(cmbNodeType, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblDescription)
+                            .addComponent(jLabel4)
+                            .addComponent(lblMediaSource)
+                            .addComponent(lblStatus))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(cmbMediaType, 0, 263, Short.MAX_VALUE)
+                            .addComponent(cmbMediaSource, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .addComponent(txtStatus))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -781,18 +924,26 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblDescription)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(10, 10, 10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblMediaSource)
+                    .addComponent(cmbMediaSource, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(cmbMediaType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblStatus)
+                    .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnDelete)
                     .addComponent(btnNew)
                     .addComponent(btnCancel)
                     .addComponent(btnCreate)
                     .addComponent(btnEdit))
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -803,19 +954,21 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
                 .addContainerGap()
                 .addComponent(spnlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnCloseForm)
-                        .addGap(19, 19, 19))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(20, 20, 20)
+                        .addComponent(lblSelectProject)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cmbProject, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(21, 21, 21))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(lblSelectProject)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(cmbProject, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap())))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btnCloseForm)
+                                .addGap(19, 19, 19))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -829,7 +982,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
                             .addComponent(lblSelectProject))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 188, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
                         .addComponent(btnCloseForm)))
                 .addContainerGap())
         );
@@ -871,6 +1024,10 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         startEditing();
     }//GEN-LAST:event_btnEditActionPerformed
 
+    private void cmbNodeTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbNodeTypeActionPerformed
+        if (status == CREATING || status == UPDATING) cmbNodeTypeChanged();
+    }//GEN-LAST:event_cmbNodeTypeActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnCloseForm;
@@ -878,6 +1035,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnNew;
+    private javax.swing.JComboBox cmbMediaSource;
     private javax.swing.JComboBox cmbMediaType;
     private javax.swing.JComboBox cmbNodeType;
     private javax.swing.JComboBox cmbProject;
@@ -885,12 +1043,15 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblDescription;
+    private javax.swing.JLabel lblMediaSource;
     private javax.swing.JLabel lblName;
     private javax.swing.JLabel lblSelectProject;
+    private javax.swing.JLabel lblStatus;
     private javax.swing.JLabel lblType;
     private javax.swing.JScrollPane spnlPanel;
     private javax.swing.JTextArea txtDescription;
     private javax.swing.JTextField txtName;
+    private javax.swing.JTextField txtStatus;
     // End of variables declaration//GEN-END:variables
     // Menu variables
     private JPopupMenu popupMenu;

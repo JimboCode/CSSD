@@ -1,5 +1,9 @@
 package BLL;
 
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.ObservableElementList;
 import java.util.ArrayList;
 
 /**
@@ -135,6 +139,17 @@ public abstract class Worker
         }
     }
     
+    public void removeTask(Project project, TaskItem task)
+    {
+        // check there is a task list for this project
+        AssignedTasks taskList = getTaskList(project);
+        if (taskList != null)
+        {
+            // remove item to task list
+            if(taskList.contains(task)) taskList.remove(task);
+        }
+    }
+    
     /**
      * Provide the number of tasks assigned to the worker for the given project
      * @param project project for which the number of tasks are to be provided
@@ -147,7 +162,7 @@ public abstract class Worker
         if (taskList != null)
         {
             // add item to task list
-            taskList.getNumberOfTasks();
+            return taskList.getNumberOfTasks();
         }
         return 0;
     }
@@ -194,7 +209,11 @@ public abstract class Worker
     private class AssignedTasks
     {
         private Project project;
-        private ArrayList<TaskItem> taskItems = new ArrayList();
+        //private ArrayList<TaskItem> taskItems = new ArrayList();
+        
+        private EventList<TaskItem> taskItems = new BasicEventList<>();
+        private ObservableElementList.Connector<TaskItem> taskListConnector = GlazedLists.beanConnector(TaskItem.class);
+        private EventList<TaskItem> observedTasks = new ObservableElementList<>(taskItems,taskListConnector);
         
         /**
          * Creates a new TaskList for the given project
@@ -215,6 +234,25 @@ public abstract class Worker
         }
         
         /**
+         * confirm if the task list contains the task
+         * @param task
+         * @return 
+         */
+        public boolean contains(TaskItem task)
+        {
+            return taskItems.contains(task);
+        }
+        
+        /**
+         * remove a task item from the task list
+         * @param task 
+         */
+        public void remove(TaskItem task)
+        {
+            taskItems.remove(task);
+        }
+        
+        /**
          * Provides the number of Tasks assigned
          * @return number of tasks
          */
@@ -230,6 +268,11 @@ public abstract class Worker
         public Project getProject()
         {
             return project;
+        }
+        
+        public EventList<TaskItem> getTaskList()
+        {
+            return observedTasks;
         }
         
     }

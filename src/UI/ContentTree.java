@@ -7,16 +7,6 @@ import BLL.MediaElement;
 import BLL.MediaItem;
 import BLL.NodeType;
 import BLL.Project;
-import java.awt.dnd.DragGestureEvent;
-import java.awt.dnd.DragGestureListener;
-import java.awt.dnd.DragSourceDragEvent;
-import java.awt.dnd.DragSourceDropEvent;
-import java.awt.dnd.DragSourceEvent;
-import java.awt.dnd.DragSourceListener;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.util.Enumeration;
 import java.util.Observable;
 import java.util.Observer;
@@ -41,16 +31,13 @@ import javax.swing.tree.TreePath;
  * 
  * @author James Staite
  */
-public class ContentTree extends JTree implements Observer, DragGestureListener, DropTargetListener, DragSourceListener
+public class ContentTree extends JTree implements Observer
 {
     // reference to the project tree being displayed
     Project project;
     
     // reference to the ContentManager for the tree data of the project
     ContentManager contentManager;
-    
-    // reference to the currently
-    //DefaultMutableTreeNode selectedNode;
     
     // referemce to the tree model for this tree
     private DefaultTreeModel internalTreeModel;
@@ -233,15 +220,6 @@ public class ContentTree extends JTree implements Observer, DragGestureListener,
     }
     
     /**
-     * The BLL tree node to be updated
-     * @param item The MediaItem to be updated
-     */
-    public void updateItem(MediaItem item)
-    {
-        contentManager.updateItem(item);
-    }
-    
-    /**
      * The BLL tree node to be removed
      * @param item The MediaItem to be removed
      */
@@ -270,7 +248,7 @@ public class ContentTree extends JTree implements Observer, DragGestureListener,
     public void update(Observable object, Object arg) 
     {
         // check if event from the ContentManager 
-        if (object.equals(contentManager))
+        if (object.equals(contentManager) && arg instanceof ContentEvent)
         {
             // unpack the argument object
             ContentEvent eventArg = (ContentEvent) arg;
@@ -288,13 +266,13 @@ public class ContentTree extends JTree implements Observer, DragGestureListener,
                     // remove a node
                     removeNode(child);
                     break;
-                case ContentEvent.MOVE:
-                    // move a node
-                    moveNodes(parent, child);
-                    break;
                 case ContentEvent.UPDATE:
                     // update a node
                     updateNode(child);
+                    break;
+                case ContentEvent.MOVE:
+                    // move a node
+                    moveNodes(parent, child);
                     break;
             }            
         }
@@ -314,27 +292,15 @@ public class ContentTree extends JTree implements Observer, DragGestureListener,
         // Create a new node for insertion
         DefaultMutableTreeNode newTreeNode = new DefaultMutableTreeNode(child);
         
-//        int insertIndex = 0;
         // set the appropiate property for the type of new child node
         if (child instanceof MediaElement)
         {
             newTreeNode.setAllowsChildren(true);
-            // add branch at the end of the children
-//            insertIndex = parentNode.getChildCount();
         }
         else
         {
             newTreeNode.setAllowsChildren(false);
-            // set position for insert at the end of the leafs but before the branches
-//            for(int i = 0; i < parentNode.getChildCount(); i++)
-//            {
-//                if (parentNode.getChildAt(i).getAllowsChildren())
-//                {
-//                    insertIndex = i;
-//                    break;
-//                }
-//            }
-        }
+         }
   
         // add the new node to the tree model
         insertNodeInto(newTreeNode, parentNode);
@@ -439,60 +405,4 @@ public class ContentTree extends JTree implements Observer, DragGestureListener,
         // return null if not found
         return null;
     }
-
-    @Override
-    public void dragGestureRecognized(DragGestureEvent dge) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dragEnter(DropTargetDragEvent dtde) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dragOver(DropTargetDragEvent dtde) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dragExit(DropTargetEvent dte) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void drop(DropTargetDropEvent dtde) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dragEnter(DragSourceDragEvent dsde) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dragOver(DragSourceDragEvent dsde) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dropActionChanged(DragSourceDragEvent dsde) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dragExit(DragSourceEvent dse) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dragDropEnd(DragSourceDropEvent dsde) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
 }

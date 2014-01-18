@@ -32,7 +32,9 @@ public class WorkerFactory
                 break;
             case FREELANCER:
                 worker = new Freelancer(role, name, userName, password);
-                break;    
+                break; 
+            case CLIENT:
+                worker = new Client(role, name, userName, password);
         }
         return worker;
     }

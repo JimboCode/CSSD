@@ -8,13 +8,13 @@ package BLL;
  */
 public enum ComponentType 
 {
-    NONE,
     VIDEO,
     AUDIO,
     JAVA,
     SUBTITLES,
     TRANSLATION,
-    TEXTFILE;
+    TEXTFILE,
+    COMPRESSED_ELEMENT;
     
     /**
      * Provides a displayable string of the enum
@@ -23,8 +23,17 @@ public enum ComponentType
     @Override
     public String toString() 
     {
-        //only capitalize the first letter
-        String s = super.toString();
-        return s.substring(0, 1) + s.substring(1).toLowerCase();
+        // strips the _ and replaces with " "
+        // Capitalises the first letter
+        // Replaces QC with Quality Control
+        String value = super.toString();
+        String words[] = value.split("_");
+        value = "";
+        for(String word: words)
+        {
+            word = word.toUpperCase().replace(word.substring(1), word.substring(1).toLowerCase());
+            value += word + " ";
+        }
+        return value.trim();
     }
 }

@@ -11,7 +11,7 @@ import ca.odell.glazedlists.*;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor;
 import ca.odell.glazedlists.matchers.Matcher;
-import ca.odell.glazedlists.swing.EventTableModel;
+import ca.odell.glazedlists.swing.EventJXTableModel;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,10 +36,10 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
     private ArrayList<Worker> allWorkers = new ArrayList();
     
     // list of avaliable workers that are not currently assigned to the project
-    private EventList avaliableWorkers = new BasicEventList();
+    private EventList<Worker> avaliableWorkers = new BasicEventList();
     
     // list of current workers assigend to the project
-    private EventList currentTeam = new BasicEventList();
+    private EventList<WorkerWrapper> currentTeam = new BasicEventList();
     
     // used to filter the view of the avaliableWorkers list by work role for display on the form
     private WorkerRoleMatcherEditor matcherEditor = new WorkerRoleMatcherEditor();
@@ -48,6 +48,9 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
     // overall list of additions and omission from the currentTeam
     private ArrayList<Worker> addToTeamList = new ArrayList();
     private ArrayList<Worker> removeFromTeamList = new ArrayList();
+    
+    // reference to the forms user
+    Worker user;
     
     // Actionlistner for selections of row in the current team table
     private ListSelectionListener tabTeamListner = new ListSelectionListener()
@@ -110,9 +113,11 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
     /**
      * Instantiates a new DefineTeamUI form
      */
-    public DefineTeamUI(Project project) {
+    public DefineTeamUI(Project project, Worker user) {
         super("Define Project Team",false,true,false,false);
         initComponents();
+        
+        this.user = user;
         
         // load initial form data
         loadFormData();
@@ -128,6 +133,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
     {
         // check that there is at least one project defined
         ProjectRegister proReg = ProjectRegister.getInstance();
+        // TODO dialog box not projects defined
         
         // load avaliable projects
         loadProjectCombo();
@@ -632,7 +638,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
         DefaultComboBoxModel projectComboModel = new DefaultComboBoxModel();
         
         // load the model and set the combo box to the new model
-        for(Project project: proReg.getProjectList())
+        for(Project project: proReg.getProjectList(user))
         {
             projectComboModel.addElement(project);
         }
@@ -716,7 +722,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
             new String[] {"Name", "Work Role","No. Projects","Employment Type"});
         
         // set table up
-        EventTableModel tableModel = new EventTableModel(filteredAvaliableWorkers, tableFormat);
+        EventJXTableModel tableModel = new EventJXTableModel(filteredAvaliableWorkers, tableFormat);
         tabAvaliableWorkers.setModel(tableModel);
         tabAvaliableWorkers.getSelectionModel().addListSelectionListener(tabAvaliableListner);
     }
@@ -734,7 +740,7 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
             new String[] {"Name", "Work Role","No. Projects","No. of Tasks","Employment Type"});
         
         // set table up
-        EventTableModel tableModel = new EventTableModel(currentTeam, tableFormat);
+        EventJXTableModel tableModel = new EventJXTableModel(currentTeam, tableFormat);
         tabTeam.setModel(tableModel);
         tabTeam.getSelectionModel().addListSelectionListener(tabTeamListner);
     }

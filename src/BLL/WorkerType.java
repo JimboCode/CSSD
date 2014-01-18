@@ -8,7 +8,8 @@ package BLL;
 public enum WorkerType {
     STAFF,
     CONTRACTOR,
-    FREELANCER;
+    FREELANCER,
+    CLIENT;
     
     /**
      * Provides a displayable string of the enum

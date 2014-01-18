@@ -34,7 +34,7 @@ import javax.swing.text.MaskFormatter;
 public class CreateProjectUI extends javax.swing.JInternalFrame implements Observer
 {
     // Reference to user from Main UI
-    private Staff manager;
+    private Worker user;
     
     // Reference to main UI
     private MainMDIUI mainform;
@@ -71,7 +71,7 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
         
         // set Managers Details
         txtManager.setText(user.getName());
-        manager = (Staff)user;
+        this.user = user;
         
         // setup validation action listner events for required fields
         txtProjectName.addCaretListener(new CaretListener() 
@@ -316,7 +316,7 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
         ProjectRegister projectReg = ProjectRegister.getInstance();
 
         // check if the project already exists
-        if(projectReg.findbyName(txtProjectName.getText()) == null)
+        if(projectReg.findbyName(txtProjectName.getText(), user) == null)
         {
             // set the project name background colour to the default
             txtProjectName.setBackground(UIManager.getColor( "Panel.background"));
@@ -327,10 +327,10 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
             if (answer == JOptionPane.YES_OPTION) 
             {
                 // create new client
-                Project project = projectReg.addProject(txtProjectName.getText(), txtDiscTitle.getText(), (Client)cmbClient.getSelectedItem(), (Region)cmbRegion.getSelectedItem(), manager, (Date)ftxtCompletionDate.getValue());
+                Project project = projectReg.addProject(txtProjectName.getText(), txtDiscTitle.getText(), (Client)cmbClient.getSelectedItem(), (Region)cmbRegion.getSelectedItem(), user, (Date)ftxtCompletionDate.getValue());
 
                 // create Define Project Team Form
-                DefineTeamUI frm = new DefineTeamUI(project);
+                DefineTeamUI frm = new DefineTeamUI(project, user);
                 mainform.addForm(frm);
                 // remove events
                 deregisterEvents();
@@ -361,7 +361,7 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
         ProjectRegister projectReg = ProjectRegister.getInstance();
 
         // create new client
-        Project created = projectReg.addProject(txtProjectName.getText(), txtDiscTitle.getText(), (Client)cmbClient.getSelectedItem(), (Region)cmbRegion.getSelectedItem(), manager, (Date)ftxtCompletionDate.getValue());
+        Project created = projectReg.addProject(txtProjectName.getText(), txtDiscTitle.getText(), (Client)cmbClient.getSelectedItem(), (Region)cmbRegion.getSelectedItem(), user, (Date)ftxtCompletionDate.getValue());
 
         // null returned if project was not created because it already exists
         if (created == null)

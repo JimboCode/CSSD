@@ -48,7 +48,7 @@ public class ProjectRegister extends Observable
     public Project addProject(String projectName, String discTitle, Client client, Region region, Worker projectManager, Date dueDate)
     {
         // check project already exists
-        Project project = findbyName(projectName);
+        Project project = validProjectName(projectName);
         if (project == null)
         {
             // create new project record
@@ -104,15 +104,15 @@ public class ProjectRegister extends Observable
      * @param name name (used to identify projects - must be unique)
      * @return Project record object
      */
-    public Project findbyName(String name)
+    public Project findbyName(String name, Worker user)
     {
-        // iterate over collection to find matching record
+        // iterate over collection to find matching records
         for(Project project: projectReg)
         {
             // check if the name matches (not case sensitive)
             if(project.getName().compareToIgnoreCase(name) == 0)
             {
-                return project;
+                if (validUser(project, user)) return project;
             }
         }
         return null;
@@ -122,9 +122,15 @@ public class ProjectRegister extends Observable
      * Provides a list of all the project records
      * @return ArrayList of Project records
      */
-    public List<Project> getProjectList()
+    public List<Project> getProjectList(Worker user)
     {
-        return Collections.unmodifiableList(projectReg);
+        ArrayList<Project> foundProjects = new ArrayList();
+        for(Project project: projectReg)
+        {
+            // check if user on team
+            if (validUser(project, user)) foundProjects.add(project);
+        }
+        return Collections.unmodifiableList(foundProjects);
     }
     
     /**
@@ -148,5 +154,33 @@ public class ProjectRegister extends Observable
     public int getNumberOfProjects()
     {
         return projectReg.size();
+    }
+    
+    private boolean validUser(Project project, Worker user)
+    {
+        if (user.getRole() == WorkerRoles.PROJECT_MANAGER ||
+                        project.isWorkerOnTeam(user) ||
+                        project.getClient() == user)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    private Project validProjectName(String name)
+    {
+        // iterate over collection to find matching records
+        for(Project project: projectReg)
+        {
+            // check if the name matches (not case sensitive)
+            if(project.getName().compareToIgnoreCase(name) == 0)
+            {
+                return project;
+            }
+        }
+        return null;
     }
 }

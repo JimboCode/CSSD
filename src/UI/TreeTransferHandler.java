@@ -1,5 +1,7 @@
 package UI;
 
+import BLL.MediaItem;
+import BLL.MediaStatus;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -82,9 +84,20 @@ class TreeTransferHandler extends TransferHandler {
         DefaultMutableTreeNode sourceNode = (DefaultMutableTreeNode)path.getLastPathComponent();
         if (target.equals(sourceNode)) return false;
         
+        // check sourceNode is not root
+        if (sourceNode.isRoot()) return false;
+        
         // Do not allow a drop on parent - pointless
         if(sourceNode.getParent().equals(target))
         {
+            return false;
+        }
+        
+        // check the targets status is MediaStatus.AWAITING
+        MediaItem targetMediaItem = (MediaItem) target.getUserObject();
+        if (targetMediaItem.getStatus() != MediaStatus.AWAITING_ASSETS && targetMediaItem.getStatus() != MediaStatus.AWAITING_ASSETS_DELAYED)
+        {
+            // target cannot have nodes added
             return false;
         }
         

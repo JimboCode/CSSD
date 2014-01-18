@@ -252,7 +252,7 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
         taskMenu.setMnemonic('t');
         taskMenu.setText("Tasks");
         
-        createTaskMenuItem.setText("Create");
+        createTaskMenuItem.setText("Order Content");
         createTaskMenuItem.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -290,6 +290,9 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
     // <editor-fold defaultstate="collapsed" desc="UI Code"> 
     {
         // create menu items
+        taskMenu = new javax.swing.JMenu();
+        createTaskMenuItem = new javax.swing.JMenuItem();
+        
         taskMenu.setMnemonic('t');
         taskMenu.setText("Tasks");
         
@@ -593,7 +596,7 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
     private void teamMenuItemActionPerformed(java.awt.event.ActionEvent evt) 
     {                                                   
         // create and add create project team form
-        DefineTeamUI frm = new DefineTeamUI(null);
+        DefineTeamUI frm = new DefineTeamUI(null, user);
         addForm(frm);
     }  
     
@@ -603,7 +606,7 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
      */
     private void contentMenuItemActionPerformed(ActionEvent evt) 
     {
-        DefineContentUI frm = new DefineContentUI();
+        DefineContentUI frm = new DefineContentUI(user);
         addForm(frm);
     }
     
@@ -613,7 +616,8 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
      */
     private void createTaskMenuItemActionPerformed(ActionEvent evt) 
     {
-    
+        OrderContentTasksUI frm = new OrderContentTasksUI(user);
+        addForm(frm);
     }
     
     /**
@@ -622,7 +626,8 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
      */
     private void projectProgressMenuItemActionPerformed(ActionEvent evt) 
     {
-    
+        ProjectProgressUI frm = new ProjectProgressUI(user);
+        addForm(frm);
     }
     
     /**

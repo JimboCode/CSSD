@@ -57,7 +57,14 @@ public class ClientRegister extends Observable
         if (client == null)
         {
             // create new client record
-            client = new Client(name, addLine1, addLine2, addLine3, addLine4, postCode, tel);
+            WorkerRegister register = WorkerRegister.getInstance();
+            client = (Client) register.addWorker(WorkerRoles.CLIENT, new String[]{name}, name, "Password",WorkerType.CLIENT);
+            client.setAddressLine1(addLine1);
+            client.setAddressLine2(addLine2);
+            client.setAddressLine3(addLine3);
+            client.setAddressLine4(addLine4);
+            client.setPostCode(postCode);
+            client.setTel(tel);
             
             // add new client record
             clientReg.add(client);
