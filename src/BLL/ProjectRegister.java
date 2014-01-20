@@ -128,7 +128,10 @@ public class ProjectRegister extends Observable
         for(Project project: projectReg)
         {
             // check if user on team
-            if (validUser(project, user)) foundProjects.add(project);
+            if (validUser(project, user) ||
+                    user.getWorkerType() == WorkerType.CONTRACTOR ||
+                    user == project.getClient())
+                foundProjects.add(project);
         }
         return Collections.unmodifiableList(foundProjects);
     }

@@ -1,11 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package BLL;
-
-import static BLL.MediaStatus.ASSET_READY;
-import static BLL.MediaStatus.AWAITING_QC;
 
 /**
  * Defines the work flow for a media asset though the system by providing:-
@@ -198,5 +191,26 @@ public class MediaAssetWorkFlow extends MediaItemWorkFlow
                 return new WorkerRoles[]{};
             }
         }        
+    }
+
+    @Override
+    public boolean getFileRequiredWithStatus(MediaStatus status) 
+    {
+        switch (status)
+        {
+            case ORDERED_IN_HOUSE:
+            case REQUESTED_FROM_CLIENT:
+            case FIXES_ORDERED_DELAYED:
+            case REPLACEMENT_REQUESTED_FROM_CLIENT:
+            case ORDERED_FROM_CONTRACTOR:
+            case REORDERED_FROM_CONTRACTOR:
+            {
+                return true;
+            }
+            default:
+            {
+                return false;
+            }
+        }       
     }
 }

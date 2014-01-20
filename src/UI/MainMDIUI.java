@@ -71,6 +71,8 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
         // create Login dialog
         LoginUI login = new LoginUI();
         
+        user = null;
+        
         // request user details and set the field in the main UI for reference
         user = login.getIDandPassword();
 
@@ -129,6 +131,11 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
             case QC_TEAM_LEADER:
             {
                 setupUIQC_TeamLeader();
+                break;
+            }
+            case CONTRACTOR: case CLIENT:
+            {
+                setupMediaSupplier();
                 break;
             }
         }
@@ -302,6 +309,37 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 createTaskMenuItemActionPerformed(evt);
+            }
+        });
+        taskMenu.add(createTaskMenuItem);
+        menuBar.add(taskMenu);
+        
+        // add common menus
+        setupUIhelpMenu();
+        
+        // repaint menus
+        this.repaint();
+    } // </editor-fold>
+    
+    /*
+     * Sets up the UI for QC Team Leaders users
+     */
+    private void setupMediaSupplier()
+    // <editor-fold defaultstate="collapsed" desc="UI Code"> 
+    {
+        // create menu items
+        taskMenu = new javax.swing.JMenu();
+        createTaskMenuItem = new javax.swing.JMenuItem();
+        
+        taskMenu.setMnemonic('t');
+        taskMenu.setText("Tasks");
+        
+        // setup menu items and action listners
+        createTaskMenuItem.setText("View");
+        createTaskMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createViewTaskMenuItemActionPerformed(evt);
             }
         });
         taskMenu.add(createTaskMenuItem);
@@ -627,6 +665,12 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
     private void projectProgressMenuItemActionPerformed(ActionEvent evt) 
     {
         ProjectProgressUI frm = new ProjectProgressUI(user);
+        addForm(frm);
+    }
+    
+    private void createViewTaskMenuItemActionPerformed(ActionEvent evt)
+    {
+        ProvideMediaUI frm = new ProvideMediaUI(user);
         addForm(frm);
     }
     

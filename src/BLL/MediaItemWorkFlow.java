@@ -16,4 +16,6 @@ public abstract class MediaItemWorkFlow
     public abstract MediaStatus[] getValidStatusOptions(MediaStatus status, boolean withAFile, MediaSource mediaSource, Worker worker);
     
     public abstract WorkerRoles[] getValidAllocateToWorkerRoles(MediaStatus status);
+    
+    public abstract boolean getFileRequiredWithStatus(MediaStatus status);
 }

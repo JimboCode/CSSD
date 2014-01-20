@@ -233,6 +233,29 @@ public abstract class MediaItem extends Observable
         return workFlow.getValidAllocateToWorkerRoles(status);
     }
     
+    public boolean getFileRequiredWithStatus(MediaStatus status)
+    {
+        return workFlow.getFileRequiredWithStatus(status);
+    }
+    
+    protected void addTask(TaskItem newTask)
+    {
+        // mark previous task as complete
+        //if (currentTask != null) currentTask.setStatus(TaskStatus.COMPLETE,"");
+        
+        // add the new task
+        mediaItemTasks.add(newTask);
+        
+        // update the current task
+        currentTask = newTask;
+        
+        // raise event to tasklist to add this event to the master list
+        // flag change
+        setChanged();
+        // send notification of new child to add to tree
+        notifyObservers(new TaskListEvent(newTask, null, TaskListEvent.NEW));
+    }
+    
     /**
      * Update the media items status and provide the details for the user to create the next task if required
      * @param status The new status requested - use getValidStatusOptions to check which options are currently avaliable (based upon it current state)
@@ -245,18 +268,17 @@ public abstract class MediaItem extends Observable
     public abstract boolean setStatus(MediaStatus status, Worker updatingUser, String Description, WorkerRoles roleType, Worker allocatedTo, int priority);
     
     /**
+     * Notifies the mediaItem thats it current task has been completed.
+     * Used to get mediaItem to complete the next task if appropriate
+     */
+    public abstract void currentTaskCompleted(String Comments);
+    
+    /**
      * Check if the node or any of its child nodes have tasks allocated to them
      * If they are tasks allocated the node cannot be removed.
      * @return 
      */
     public abstract boolean canBeDeleted();
-    
-    /**
-     * Add media files to the Media Item and set the status of the Media Item
-     * @param filename Filename
-     * @param status New status of the Media Item - enumeration MediaStatus
-     */
-    public abstract boolean addFile(String file, MediaStatus status, Worker worker);
     
     /**
      * Allows notification from children nodes that they status has been updated

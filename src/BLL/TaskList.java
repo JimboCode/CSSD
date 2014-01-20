@@ -15,7 +15,7 @@ import java.util.Observer;
  */
 public class TaskList implements Observer
 {
-    EventList<TaskItem> mediaItemTasks = new BasicEventList<>();
+    EventList<TaskItem> mediaItemTasks = GlazedLists.threadSafeList(new BasicEventList<TaskItem>());
     ObservableElementList.Connector<TaskItem> taskListConnector = GlazedLists.beanConnector(TaskItem.class);
     EventList<TaskItem> observedTasks = new ObservableElementList<>(mediaItemTasks,taskListConnector);
     
@@ -64,8 +64,21 @@ public class TaskList implements Observer
     
     private void addTaskToList(TaskItem newTask)
     {
+        // check if the task has been allocated to the QC Team Leader
+        if (newTask.getWorkRoleType() == WorkerRoles.QC_TEAM_LEADER)
+        {
+            newTask.setWorker(project.getQC_TeamLeader());
+        }
+        
+        // check if the task has been allocated to the QC Team Leader
+        if (newTask.getWorkRoleType() == WorkerRoles.PROJECT_MANAGER)
+        {
+            newTask.setWorker(project.getManager());
+        }
+        
         // add task to list
         mediaItemTasks.add(newTask);
+        
         
         // add task to users own tasklist if included in task details
         Worker worker = newTask.getWorker();

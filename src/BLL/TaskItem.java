@@ -27,6 +27,12 @@ public class TaskItem
     
     // Task description
     private String description;
+    
+    // flags if a file is required to complete this task
+    private boolean fileRequired;
+    
+    // supplied file if required
+    private String filename;
 
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     
@@ -38,13 +44,14 @@ public class TaskItem
      * @param status The status of this task
      * @param description The description of what the task is
      */
-    public TaskItem(MediaItem mediaItem, WorkerRoles workRoleType, int priority, TaskStatus status, String description)
+    public TaskItem(MediaItem mediaItem, WorkerRoles workRoleType, int priority, TaskStatus status, String description, boolean fileRequired)
     {
         this.mediaItem = mediaItem;
         this.workRoleType = workRoleType;
         this.priority = priority;
         this.status = status;
         this.description = description;
+        this.fileRequired = fileRequired;
     }
     
     public void addPropertyChangeListner(PropertyChangeListener pcl)
@@ -119,10 +126,30 @@ public class TaskItem
     /**
      * @param status the status to set
      */
-    public void setStatus(TaskStatus status) {
+    public boolean setStatus(TaskStatus status, String comments) 
+    {
         final TaskStatus oldStatus = this.status;
-        this.status = status;
-        support.firePropertyChange("Status", oldStatus, status);
+        if (status == TaskStatus.COMPLETE)
+        {
+            if (filename != null)
+            {
+                this.status = status;
+                mediaItem.currentTaskCompleted(comments);
+                support.firePropertyChange("Status", oldStatus, status);
+                return true;
+            }
+            else
+            {
+                support.firePropertyChange("Status", oldStatus, status);
+                return false;
+            }
+        }
+        else
+        {
+            this.status = status;        
+            support.firePropertyChange("Status", oldStatus, status);
+            return true;
+        }
     }
 
     /**
@@ -139,5 +166,26 @@ public class TaskItem
         final String oldDescription = this.description;
         this.description = description;
         support.firePropertyChange("Description", oldDescription, description);
+    }
+
+    /**
+     * @return the fileRequired
+     */
+    public boolean isFileRequired() {
+        return fileRequired;
+    }
+
+    /**
+     * @return the filename
+     */
+    public String getFilename() {
+        return filename;
+    }
+
+    /**
+     * @param filename the filename to set
+     */
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }

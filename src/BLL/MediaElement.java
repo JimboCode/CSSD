@@ -156,6 +156,12 @@ public class MediaElement extends MediaItem
     }
     
     @Override
+    public void currentTaskCompleted(String comment)
+    {
+        
+    }
+    
+    @Override
     public boolean setStatus(MediaStatus status, Worker updatingUser, String Description, WorkerRoles roleType, Worker allocatedTo, int priority)
     {
         if (status == MediaStatus.SCRUBBED_FROM_DISC)
@@ -218,40 +224,33 @@ public class MediaElement extends MediaItem
     /**
      * Add media files to the Media Item and set the status of the Media Item
      * @param filename Filename
-     * @param status New status of the Media Item - enumeration MediaStatus
      */
-    @Override
-    public boolean addFile(String filename, MediaStatus status, Worker worker)
+    public void addFile(String filename, String comments)
     {
-        MediaStatus[] validChanges = getValidStatusOptions(true, worker);
-        if (validChanges.length == 0) return false;
-        for(MediaStatus thisStatus: validChanges)
+        MediaStatus newStatus = null;
+        switch (status)
         {
-            if (status == thisStatus)
+            case QUICK_REQUESTED:
             {
-                switch (status)
-                {
-                    case QUICK_REQUESTED:
-                    {
-                        currentFile = new File(filename, FileStatus.QUICK, 0);
-                        filesStored.add(currentFile);
-                    }
-                    case COMPRESSION_COMPLETED:
-                    {
-                        int version = currentFile.getVersion();
-                        File file = new File(filename, FileStatus.COMPRESSED, version++);
-                        filesStored.add(file);
-                    }
-                }
-                this.status = status;
-                
-                // notify update
-                raiseUpdateEvent();
-                
-                return true;
+                currentFile = new File(filename, FileStatus.QUICK, 0);
+                filesStored.add(currentFile);
+                newStatus = MediaStatus.AWAITING_QC;
+            }
+            case COMPRESSION_COMPLETED:
+            {
+                int version = currentFile.getVersion();
+                File file = new File(filename, FileStatus.COMPRESSED, version++);
+                filesStored.add(file);
+                newStatus = MediaStatus.AWAITING_QC;
             }
         }
-        return false;
+        if (newStatus != null) 
+        {
+            this.status = newStatus;
+            
+            // notify update
+            raiseUpdateEvent();
+        }      
     }
     
     @Override

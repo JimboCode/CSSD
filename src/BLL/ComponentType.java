@@ -36,4 +36,35 @@ public enum ComponentType
         }
         return value.trim();
     }
+    
+    public String fileExtensions()
+    {
+        switch(this)
+        {
+            case VIDEO:
+            {
+                return "*.mp4, *.mpeg, *.wmv";
+            }
+            case AUDIO:
+            {
+                return "*.mp3, *.aac, *.wav";
+            }
+            case JAVA:
+            {
+                return "*.java";
+            }
+            case SUBTITLES: case TRANSLATION: case TEXTFILE:
+            {
+                return "*.txt";
+            }
+            case COMPRESSED_ELEMENT:
+            {
+                return "*.mp4";
+            }
+            default:
+            {
+                return "";
+            }
+        }
+    }
 }

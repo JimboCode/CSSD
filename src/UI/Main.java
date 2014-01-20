@@ -13,7 +13,6 @@ import BLL.Worker;
 import BLL.WorkerRegister;
 import BLL.WorkerRoles;
 import BLL.WorkerType;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -96,6 +95,7 @@ public class Main {
         register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"3D Animations"}, "3D Animations", "Password", WorkerType.CONTRACTOR);
         register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Digital Audio Services"}, "Digital Audio Services", "Password", WorkerType.CONTRACTOR);
         register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Video Mastering"}, "Video Mastering", "Password", WorkerType.CONTRACTOR);
+        register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Media Supplies"}, "Supplier", "Password", WorkerType.CONTRACTOR);
         
         // Create some clients
         ClientRegister clientReg = ClientRegister.getInstance();
@@ -121,6 +121,7 @@ public class Main {
         MediaItem Asset1 = contentManager.addItem("Menu sequence", "Menu art work", ComponentType.VIDEO, NodeType.ASSET, Menus);
         Asset1 = contentManager.addItem("Menu backing track", "Backing track to menu system", ComponentType.AUDIO, NodeType.ASSET, Menus);
         Asset1 = contentManager.addItem("Menu logic", "Java for menu system", ComponentType.JAVA, NodeType.ASSET, Menus);
+        Asset1 = contentManager.addItem("Menu Subtitles", "Subtitles for menus", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
         
         MediaItem episodeContent = contentManager.addItem("Episode Content", "Content for episodes", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, root);
         

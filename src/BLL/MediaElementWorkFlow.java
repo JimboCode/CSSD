@@ -121,4 +121,9 @@ public class MediaElementWorkFlow extends MediaItemWorkFlow
             }
         }
     }
+
+    @Override
+    public boolean getFileRequiredWithStatus(MediaStatus status) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

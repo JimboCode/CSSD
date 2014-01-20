@@ -39,10 +39,6 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
     // reference to the Observered Task List
     private EventList<TaskItem> observedTasks;
     
-//    // used to filter the view of the overall task list
-//    private UnallocatedMatcher unallocatedMatcher;
-//    private FilterList unallocatedTasks;
-        
     /**
      * Creates new form ProjectProgressUI
      */

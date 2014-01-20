@@ -211,7 +211,7 @@ public abstract class Worker
         private Project project;
         //private ArrayList<TaskItem> taskItems = new ArrayList();
         
-        private EventList<TaskItem> taskItems = new BasicEventList<>();
+        private EventList<TaskItem> taskItems = GlazedLists.threadSafeList(new BasicEventList<TaskItem>());
         private ObservableElementList.Connector<TaskItem> taskListConnector = GlazedLists.beanConnector(TaskItem.class);
         private EventList<TaskItem> observedTasks = new ObservableElementList<>(taskItems,taskListConnector);
         

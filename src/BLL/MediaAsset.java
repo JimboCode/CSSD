@@ -104,8 +104,12 @@ public class MediaAsset extends MediaItem
                         break;
                     }    
                 }
+                
+                // set if task will require a file
+                boolean fileRequired = getFileRequiredWithStatus(thisStatus);
+                
                 // create a new task
-                TaskItem task = new TaskItem(this, roleType, priority, TaskStatus.AWAITING_ACTION, description);
+                TaskItem task = new TaskItem(this, roleType, priority, TaskStatus.AWAITING_ACTION, description, fileRequired);
                 
                 // if allocated to an individual set the assignment
                 if (allocatedTo != null) task.setWorker(allocatedTo);
@@ -131,64 +135,78 @@ public class MediaAsset extends MediaItem
     /**
      * Add media files to the Media Item and set the status of the Media Item
      * @param filename Filename
-     * @param status New status of the Media Item - enumeration MediaStatus
      */
-    @Override
-    public boolean addFile(String filename, MediaStatus status, Worker worker)
+    private void addFile(String filename, String comments)
     {
-        MediaStatus[] validChanges = getValidStatusOptions(true, worker);
-        if (validChanges.length == 0) return false;
-        for(MediaStatus thisStatus: validChanges)
+        MediaStatus newStatus = null;
+        String description = "";
+        Worker allocateTo = null;
+        switch (status)
         {
-            if (status == thisStatus)
+            case REQUESTED_FROM_CLIENT: case ORDERED_FROM_CONTRACTOR: 
+            case REORDERED_FROM_CONTRACTOR: case REPLACEMENT_REQUESTED_FROM_CLIENT:
+            case ORDERED_IN_HOUSE:
             {
-                switch (status)
-                {
-                    case ARRIVED_IN_VAULT:
-                    {
-                        currentFile = new File(filename, FileStatus.NEW_NOT_QC_CHECKED, 0);
-                        filesStored.add(currentFile);
-                    }
-                    case FIXES_COMPLETED:
-                    {
-                        int version = currentFile.getVersion();
-                        File file = new File(filename, FileStatus.FIXED, version++);
-                        filesStored.add(file);
-                    }
-                    case COMPRESSION_COMPLETED:
-                    {
-                        int version = currentFile.getVersion();
-                        File file = new File(filename, FileStatus.COMPRESSED, version++);
-                        filesStored.add(file);
-                    }
-                }
-                this.status = status;
+                // store file provided
+                currentFile = new File(filename, FileStatus.NEW_NOT_QC_CHECKED, 0);
+                filesStored.add(currentFile);
                 
-                // notify update
-                raiseUpdateEvent();
+                // set the status to update to
+                newStatus = MediaStatus.ARRIVED_IN_VAULT;
+                description = "Asset provided; Ready for inward QC (Comment : " + comments + ")";
+                // allocateTo = ;
+                break;
+            }
+            case FIXES_COMPLETED:
+            {
+                int version = currentFile.getVersion();
+                File file = new File(filename, FileStatus.FIXED, version++);
+                filesStored.add(file);
                 
-                return true;
+                // set the status to update to
+                newStatus = MediaStatus.AWAITING_QC;
+                description = "Fixes completed; Ready for QC (Comment : " + comments + ")";
+                break;
+            }
+            case COMPRESSION_COMPLETED:
+            {
+                int version = currentFile.getVersion();
+                File file = new File(filename, FileStatus.COMPRESSED, version++);
+                filesStored.add(file);
+                
+                // set the status to update to
+                newStatus = MediaStatus.AWAITING_QC;
+                description = "Fixes completed; Ready for QC (Comment : " + comments + ")";
+                break;
             }
         }
-        return false;
+        
+        // if status changing raise a new task
+        if (newStatus != null) 
+        {
+            // create a new task MediaItem mediaItem, WorkerRoles workRoleType, int priority, TaskStatus status, String description, boolean fileRequired
+            TaskItem task = new TaskItem(this, WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false);
+
+            // if allocated to an individual set the assignment
+            if (allocateTo != null) task.setWorker(allocateTo);
+
+            // addTask
+            addTask(task);
+            
+            this.status = newStatus;
+            
+            // notify update
+            raiseUpdateEvent();
+        }                
     }
     
-    private void addTask(TaskItem newTask)
+    @Override
+    public void currentTaskCompleted(String comments)
     {
-        // mark previous task as complete
-        if (currentTask != null) currentTask.setStatus(TaskStatus.COMPLETE);
-        
-        // add the new task
-        mediaItemTasks.add(newTask);
-        
-        // update the current task
-        currentTask = newTask;
-        
-        // raise event to tasklist to add this event to the master list
-        // flag change
-        setChanged();
-        // send notification of new child to add to tree
-        notifyObservers(new TaskListEvent(newTask, null, TaskListEvent.NEW));
+        if (currentTask.isFileRequired())
+        {
+            addFile(currentTask.getFilename(), comments);
+        }
     }
     
     @Override
