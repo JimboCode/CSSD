@@ -678,14 +678,14 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         boolean invalid = false;
         
         // check project elementName entered
-        if (txtName.getText().length() == 0)
+        if (!txtName.isEnabled() || txtName.getText().length() == 0)
         {
             // invalid form state 
             invalid = true;
         } 
         
         // check disc title entered
-        if (txtDescription.getText().length() == 0)
+        if (txtDescription.getText().length() == 0 && txtDescription.isEnabled())
         {
             // invlaid form state
             invalid = true;
@@ -805,6 +805,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         txtDescription.setColumns(20);
         txtDescription.setLineWrap(true);
         txtDescription.setRows(5);
+        txtDescription.setWrapStyleWord(true);
         txtDescription.setEnabled(false);
         jScrollPane1.setViewportView(txtDescription);
 
@@ -982,7 +983,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
                             .addComponent(lblSelectProject))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 176, Short.MAX_VALUE)
                         .addComponent(btnCloseForm)))
                 .addContainerGap())
         );

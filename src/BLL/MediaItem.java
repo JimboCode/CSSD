@@ -50,7 +50,7 @@ public abstract class MediaItem extends Observable
     protected boolean notificationFlag = true;
     
     /**
-     * Instanciates object
+     * creates & initialises object
      * 
      * @param name Sort name displayed as the name of the node
      * @param description Description of the content item
@@ -361,53 +361,4 @@ public abstract class MediaItem extends Observable
     {
         notifyObserversOfChange(new ContentEvent(null, this, ContentEvent.UPDATE));
     }
-    
-    /**
-     * File storage, status, version and type
-     */
-    class File
-    {
-        private String name;
-        
-        private FileStatus status;
-        
-        private int version;
-        
-        /**
-         * Details of file component stored in a MediaItem
-         * @param name Filename
-         * @param status file status of type FileStatus enumeration
-         * @param version integer of the version number
-         */
-        File(String name, FileStatus status, int version)
-        {
-            
-        }
-        
-        /**
-         * @return the name
-         */
-        public String getName() {
-            return name;
-        }
-
-        /**
-         * @return the status
-         */
-        public FileStatus getStatus() {
-            return status;
-        }
-        
-        public void setStatus(FileStatus status)
-        {
-            this.status = status;
-        }
-
-        /**
-         * @return the version
-         */
-        public int getVersion() {
-            return version;
-        }
-    }    
 }

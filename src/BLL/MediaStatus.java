@@ -29,7 +29,8 @@ public enum MediaStatus
     QUICK_CREATED,
     BUILD_COMPLETE,
     APPROVED_FOR_FINAL_COMPRESSION,
-    SCRUBBED_FROM_DISC;
+    SCRUBBED_FROM_DISC,
+    NONE; // only for use in combo box filtering not a valid status!!!!!!!
     
     /**
      * Provides a displayable string of the enumeration

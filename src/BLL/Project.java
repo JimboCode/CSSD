@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Observable;
 
 /**
  * Defines a project
  * @author James Staite
  * @version 1.0.2
  */
-public class Project 
+public class Project extends Observable
 {
     // Project record information
     private String projectName;
@@ -95,7 +96,23 @@ public class Project
      */
     public void setQC_TeamLeader(Staff qC_TeamLeader)
     {
+        // if the team leader is being changed remove the old team leader
+        // from the team
+        if (this.qC_TeamLeader != null)
+        {
+            // remove old team leader
+            team.remove(this.qC_TeamLeader);
+        }
+        // add new team leader
+        team.add(qC_TeamLeader);
+                
+        // update field
         this.qC_TeamLeader = qC_TeamLeader;
+        
+        // raise a project register changed event to nofity observers
+        // to reload project for their users
+        ProjectRegister projReg = ProjectRegister.getInstance();
+        projReg.raiseProjectChangedEvent(this);
     }
     
     /**
@@ -173,6 +190,11 @@ public class Project
                 }   
             }
         }
+        
+        // raise a project register changed event to nofity observers
+        // to reload project for their users
+        ProjectRegister projReg = ProjectRegister.getInstance();
+        projReg.raiseProjectChangedEvent(this);
         
         // flag problem removing workers from team
         return ok;

@@ -61,9 +61,8 @@ public class MediaAssetWorkFlow extends MediaItemWorkFlow
                 
             case ARRIVED_IN_VAULT:
             {
-                if (worker.getWorkerType() == WorkerType.CLIENT ||
-                        worker.getWorkerType() == WorkerType.CONTRACTOR ||
-                        worker.getRole() == WorkerRoles.AUTHOR && withAFile) return new MediaStatus[] {MediaStatus.INWARD_QC};
+                if (worker.getRole() == WorkerRoles.PROJECT_MANAGER ||
+                        worker.getRole() == WorkerRoles.QC_TEAM_LEADER) return new MediaStatus[] {MediaStatus.INWARD_QC};
                 else return new MediaStatus[]{};
             }
             case INWARD_QC: case AWAITING_QC:
@@ -151,6 +150,8 @@ public class MediaAssetWorkFlow extends MediaItemWorkFlow
     @Override
     public WorkerRoles[] getValidAllocateToWorkerRoles(MediaStatus status)
     {
+        if (status == null) return new WorkerRoles[]{};
+        
         switch (status)
         {
             case AWAITING_ACTION:
@@ -196,6 +197,8 @@ public class MediaAssetWorkFlow extends MediaItemWorkFlow
     @Override
     public boolean getFileRequiredWithStatus(MediaStatus status) 
     {
+        if (status == null) return false;
+        
         switch (status)
         {
             case ORDERED_IN_HOUSE:

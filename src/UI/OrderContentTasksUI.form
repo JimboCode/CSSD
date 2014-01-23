@@ -55,7 +55,7 @@
                       <Component id="pnlTaskCreation" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnCloseForm" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="8" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="28" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
@@ -195,7 +195,9 @@
             <Component class="javax.swing.JTextArea" name="txtDescription">
               <Properties>
                 <Property name="columns" type="int" value="20"/>
+                <Property name="lineWrap" type="boolean" value="true"/>
                 <Property name="rows" type="int" value="5"/>
+                <Property name="wrapStyleWord" type="boolean" value="true"/>
                 <Property name="enabled" type="boolean" value="false"/>
                 <Property name="focusable" type="boolean" value="false"/>
               </Properties>
@@ -249,20 +251,13 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
+                  <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
                       <Component id="lblPriority" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                              <Component id="lblWorkRole" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lblAllocatedTo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
+                      <Component id="lblWorkRole" min="-2" max="-2" attributes="0"/>
                       <Component id="lblTaskDescription" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="lblNewStatus" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblAllocatedTo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -329,14 +324,16 @@
             <Component class="javax.swing.JTextArea" name="txtTaskDescription">
               <Properties>
                 <Property name="columns" type="int" value="20"/>
+                <Property name="lineWrap" type="boolean" value="true"/>
                 <Property name="rows" type="int" value="5"/>
+                <Property name="wrapStyleWord" type="boolean" value="true"/>
               </Properties>
             </Component>
           </SubComponents>
         </Container>
         <Component class="javax.swing.JLabel" name="lblWorkRole">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Worker Role"/>
+            <Property name="text" type="java.lang.String" value="For Work Role"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="lblAllocatedTo">
@@ -404,7 +401,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="lblNewStatus">
           <Properties>
-            <Property name="text" type="java.lang.String" value="New Status"/>
+            <Property name="text" type="java.lang.String" value="Action"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JComboBox" name="cmbTaskNewStatus">

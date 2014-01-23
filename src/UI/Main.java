@@ -67,7 +67,7 @@ public class Main {
         // Create some system users
         WorkerRegister register = WorkerRegister.getInstance();
         
-        Worker JamesStaite = register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"James","Staite"}, "James.Staite", "Password",WorkerType.STAFF);
+        Worker Manager = register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"Manager",""}, "Manager", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"Sam","Pickstone"}, "S.Pickstone", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"Sarah","Murfet"}, "S.Murfet", "Password",WorkerType.STAFF); 
 
@@ -75,15 +75,15 @@ public class Main {
                 
         register.addWorker(WorkerRoles.QC, new String[]{"John","Smith"}, "J.Smith", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.QC, new String[]{"Richard","Brown"}, "R.Brown", "Password",WorkerType.STAFF);
-        register.addWorker(WorkerRoles.QC, new String[]{"David","Hudson"}, "D.Hudson", "Password",WorkerType.STAFF);
+        register.addWorker(WorkerRoles.QC, new String[]{"QC",""}, "QC", "Password",WorkerType.STAFF);
 
         register.addWorker(WorkerRoles.QC_TEAM_LEADER, new String[]{"Lynne","Featherstone"}, "L.Featherstone", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.QC_TEAM_LEADER, new String[]{"Richard","Brown"}, "R.Brown", "Password",WorkerType.STAFF);
-        register.addWorker(WorkerRoles.QC_TEAM_LEADER, new String[]{"Dan","Roddis"}, "R.Roddis", "Password",WorkerType.STAFF);
+        register.addWorker(WorkerRoles.QC_TEAM_LEADER, new String[]{"QC Leader",""}, "QC Leader", "Password",WorkerType.STAFF);
         
         register.addWorker(WorkerRoles.AUTHOR, new String[]{"Jill","Martin"}, "J.Martin", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.AUTHOR, new String[]{"Jackie","Brown"}, "J.Brown", "Password",WorkerType.STAFF);
-        register.addWorker(WorkerRoles.AUTHOR, new String[]{"Richard","Goodson"}, "R.Goodson", "Password",WorkerType.STAFF);
+        register.addWorker(WorkerRoles.AUTHOR, new String[]{"Author",""}, "Author", "Password",WorkerType.STAFF);
         
         register.addWorker(WorkerRoles.QC, new String[]{"Terry","Richardson"}, "T.Richardson", "Password", WorkerType.FREELANCER);
         register.addWorker(WorkerRoles.QC, new String[]{"Mark","Johnson"}, "M.Johnson", "Password", WorkerType.FREELANCER);
@@ -95,7 +95,7 @@ public class Main {
         register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"3D Animations"}, "3D Animations", "Password", WorkerType.CONTRACTOR);
         register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Digital Audio Services"}, "Digital Audio Services", "Password", WorkerType.CONTRACTOR);
         register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Video Mastering"}, "Video Mastering", "Password", WorkerType.CONTRACTOR);
-        register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Media Supplies"}, "Supplier", "Password", WorkerType.CONTRACTOR);
+        register.addWorker(WorkerRoles.CONTRACTOR, new String[]{"Supplier"}, "Supplier", "Password", WorkerType.CONTRACTOR);
         
         // Create some clients
         ClientRegister clientReg = ClientRegister.getInstance();
@@ -103,24 +103,25 @@ public class Main {
         clientReg.addClient("DreamWorks Animation", "1, The Road", "Westend", "Sheffield","", "S1 5GT","0114 2726758");
         clientReg.addClient("20th Century Fox", "Century City", "California", "USA","", "","01 6514 2726758");
         clientReg.addClient("Metro-Goldwyn-Mayer", "Golden Towers", "Darnell", "Sheffield","", "S9 6GT","0114 245986");
+        clientReg.addClient("Client", "Golden Towers", "Darnell", "Sheffield","", "S9 6GT","0114 245986");
         
         List<Client> client = clientReg.getClientList();
-        Client DreamWorks = (Client) client.get(0);
+        Client Cleint = (Client) client.get(3);
         
         // Create some Projects
         ProjectRegister projectReg = ProjectRegister.getInstance();
 
         // create new client
-        Project created = projectReg.addProject("TV Series", "Disc 1", DreamWorks, Region.EUROPE_2, JamesStaite, new Date());
+        Project created = projectReg.addProject("TV Series", "Disc 1", Cleint, Region.EUROPE_2, Manager, new Date());
         
         // create content tree
         ContentManager contentManager = created.getContentManger();
         MediaItem root = contentManager.getTree();
                 
         MediaItem Menus = contentManager.addItem("Disc Menus", "Menus System", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, root);
-        MediaItem Asset1 = contentManager.addItem("Menu sequence", "Menu art work", ComponentType.VIDEO, NodeType.ASSET, Menus);
-        Asset1 = contentManager.addItem("Menu backing track", "Backing track to menu system", ComponentType.AUDIO, NodeType.ASSET, Menus);
-        Asset1 = contentManager.addItem("Menu logic", "Java for menu system", ComponentType.JAVA, NodeType.ASSET, Menus);
+        MediaItem Asset1 = contentManager.addItem("Menu sequence", "Menu art work", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
+        Asset1 = contentManager.addItem("Menu backing track", "Backing track to menu system", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
+        Asset1 = contentManager.addItem("Menu logic", "Java for menu system", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
         Asset1 = contentManager.addItem("Menu Subtitles", "Subtitles for menus", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
         
         MediaItem episodeContent = contentManager.addItem("Episode Content", "Content for episodes", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, root);

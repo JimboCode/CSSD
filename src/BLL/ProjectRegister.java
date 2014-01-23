@@ -99,6 +99,14 @@ public class ProjectRegister extends Observable
         notifyObservers();
     }
     
+    public void raiseProjectChangedEvent(Project project)
+    {
+        if (projectReg.contains(project))
+        {
+            raiseChangedEvent();
+        }
+    }
+    
     /**
      * Locates a project record by it name (used to identify projects - must be unique) 
      * @param name name (used to identify projects - must be unique)

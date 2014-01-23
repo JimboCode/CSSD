@@ -33,6 +33,12 @@ public class TaskItem
     
     // supplied file if required
     private String filename;
+    
+    // task status for this task
+    private MediaStatus taskStatus;
+    
+    // QCReport
+    private QCReport qCReport;
 
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     
@@ -52,6 +58,7 @@ public class TaskItem
         this.status = status;
         this.description = description;
         this.fileRequired = fileRequired;
+        this.taskStatus = mediaItem.getStatus();
     }
     
     public void addPropertyChangeListner(PropertyChangeListener pcl)
@@ -74,7 +81,12 @@ public class TaskItem
     
     public MediaStatus getMediaItemStatus()
     {
-        return mediaItem.getStatus();
+        return this.taskStatus;
+    }
+    
+    public String getMediaDescription()
+    {
+        return mediaItem.getDescription();
     }
 
     /**
@@ -131,18 +143,21 @@ public class TaskItem
         final TaskStatus oldStatus = this.status;
         if (status == TaskStatus.COMPLETE)
         {
-            if (filename != null)
+            if (fileRequired == true && filename != null)
             {
                 this.status = status;
                 mediaItem.currentTaskCompleted(comments);
                 support.firePropertyChange("Status", oldStatus, status);
                 return true;
             }
-            else
+            else if (fileRequired == false)
             {
+                this.status = status;
+                mediaItem.currentTaskCompleted(comments);
                 support.firePropertyChange("Status", oldStatus, status);
-                return false;
+                return true;
             }
+            return false;
         }
         else
         {
@@ -187,5 +202,15 @@ public class TaskItem
      */
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+    
+    public QCReport getQCReport()
+    {
+        return qCReport;
+    }
+    
+    public void setQCReport(QCReport report)
+    {
+        qCReport = report;
     }
 }

@@ -92,15 +92,20 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
                 System.exit(0);
             }
         }
+        else
+        {
+            // setup user interface based upon user login
+            customiseUI();
 
-        // setup user interface based upon user login
-        customiseUI();
-        
-        // set initial menu state based upon BLL objects
-        setupMenuState();
-        
-        // register for update events from BLL objects state
-        registerEvents();
+            // display user details for demo presumes
+            this.setTitle("Post Production Media Management (" + user + " - " + user.getRoleDescription() +")" );
+
+            // set initial menu state based upon BLL objects
+            setupMenuState();
+
+            // register for update events from BLL objects state
+            registerEvents();
+        }
     }
     
     /**
@@ -111,6 +116,7 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
         // get logged in users role
         WorkerRoles role = user.getRole();
         
+        // customise the menu based upon the user type
         switch (role)
         {
             case AUTHOR:
@@ -148,6 +154,24 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
     // <editor-fold defaultstate="collapsed" desc="UI Code"> 
     {
         // create and setup Author users specific menus here
+        // create new menu items
+        viewMenu = new javax.swing.JMenu();
+        qCWorkerWindowMenuItem = new javax.swing.JMenuItem();
+        
+        viewMenu.setMnemonic('t');
+        viewMenu.setText("Tasks");
+        
+        qCWorkerWindowMenuItem.setText("Manage");
+        
+        // setup menu action listner
+        qCWorkerWindowMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                qCAuthorWorkWindowMenuItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(qCWorkerWindowMenuItem);
+        menuBar.add(viewMenu);
         
         // add common help menus
         setupUIhelpMenu();
@@ -166,16 +190,16 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
         viewMenu = new javax.swing.JMenu();
         qCWorkerWindowMenuItem = new javax.swing.JMenuItem();
         
-        viewMenu.setMnemonic('v');
-        viewMenu.setText("View");
+        viewMenu.setMnemonic('t');
+        viewMenu.setText("Tasks");
         
-        qCWorkerWindowMenuItem.setText("Work Window");
+        qCWorkerWindowMenuItem.setText("Manage");
         
         // setup menu action listner
         qCWorkerWindowMenuItem.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                qCWorkWindowMenuItemActionPerformed(evt);
+                qCAuthorWorkWindowMenuItemActionPerformed(evt);
             }
         });
         viewMenu.add(qCWorkerWindowMenuItem);
@@ -304,11 +328,11 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
         taskMenu.setText("Tasks");
         
         // setup menu items and action listners
-        createTaskMenuItem.setText("Create");
+        createTaskMenuItem.setText("Manage");
         createTaskMenuItem.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                createTaskMenuItemActionPerformed(evt);
+                createTaskManagementMenuItemActionPerformed(evt);
             }
         });
         taskMenu.add(createTaskMenuItem);
@@ -649,7 +673,7 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
     }
     
     /**
-     * Handles Task Create menu action
+     * Handles Content Tasks menu action
      * @param evt event arguments
      */
     private void createTaskMenuItemActionPerformed(ActionEvent evt) 
@@ -668,6 +692,20 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
         addForm(frm);
     }
     
+    /**
+     * Handles Content Tasks menu action
+     * @param evt event arguments
+     */
+    private void createTaskManagementMenuItemActionPerformed(ActionEvent evt) 
+    {
+        QCTeamLeaderUI frm = new QCTeamLeaderUI(user);
+        addForm(frm);
+    }
+    
+    /**
+     * Handles Tasks for media provides menu action
+     * @param evt 
+     */
     private void createViewTaskMenuItemActionPerformed(ActionEvent evt)
     {
         ProvideMediaUI frm = new ProvideMediaUI(user);
@@ -688,9 +726,10 @@ public class MainMDIUI extends javax.swing.JFrame implements Observer
      * Handles View Work Window menu action
      * @param evt event arguments
      */
-    private void qCWorkWindowMenuItemActionPerformed(ActionEvent evt) 
+    private void qCAuthorWorkWindowMenuItemActionPerformed(ActionEvent evt) 
     {
-        
+        QCAuthorTasksUI frm = new QCAuthorTasksUI(user, this);
+        addForm(frm);
     }
     
     /**

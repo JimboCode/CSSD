@@ -29,7 +29,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -138,7 +137,7 @@ public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observ
                 MediaItem thisMediaItem = thisItem.getMediaItem();
                 
                 // flag items that are not shared
-                if(mediaItemStandard.getDescription() != thisMediaItem.getDescription()) contentDescriptionSame = false;
+                if(!mediaItemStandard.getDescription().equals(thisMediaItem.getDescription())) contentDescriptionSame = false;                
                 if(mediaItemStandard.getMediaType() != thisMediaItem.getMediaType()) mediaTypeSame = false;
                 if(taskStandard.getDescription() != thisItem.getDescription()) taskDescriptionSame = false;
                 selectedTasks.add(thisItem);
@@ -219,6 +218,20 @@ public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observ
         {
             tblAllocatedTasks.clearSelection();
             tblAllocatedTasks.setRowSelectionInterval(row, row);
+        }
+        else
+        {
+            // either not rows selected or not a usable group selected
+            // clear form controls
+            txtContentName.setText("");
+            txtContentDescription.setText("");
+            txtMediaType.setText("");
+            txtTaskDescription.setText("");
+            cmbTaskStatus.setModel(new DefaultComboBoxModel());
+            cmbTaskStatus.setEnabled(false);
+            txtTaskComments.setEnabled(false);
+            btnLoadFile.setEnabled(false);
+            btnUpdateTask.setEnabled(false);
         }
         
     }
@@ -342,8 +355,6 @@ public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observ
             // reload the avaliable projects
             loadProjectCombo();
         }
-        
-        tblAllocatedTasks.clearSelection();
     }
     
     /**
@@ -432,7 +443,9 @@ public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observ
         pnlContentDetails.setBorder(javax.swing.BorderFactory.createTitledBorder("Content Details"));
 
         txtContentDescription.setColumns(20);
+        txtContentDescription.setLineWrap(true);
         txtContentDescription.setRows(5);
+        txtContentDescription.setWrapStyleWord(true);
         txtContentDescription.setEnabled(false);
         jScrollPane2.setViewportView(txtContentDescription);
 
@@ -488,7 +501,9 @@ public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observ
         jLabel3.setText("File");
 
         txtTaskDescription.setColumns(20);
+        txtTaskDescription.setLineWrap(true);
         txtTaskDescription.setRows(5);
+        txtTaskDescription.setWrapStyleWord(true);
         txtTaskDescription.setEnabled(false);
         jScrollPane3.setViewportView(txtTaskDescription);
 
@@ -518,7 +533,9 @@ public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observ
         jLabel5.setText("Comments");
 
         txtTaskComments.setColumns(20);
+        txtTaskComments.setLineWrap(true);
         txtTaskComments.setRows(5);
+        txtTaskComments.setWrapStyleWord(true);
         txtTaskComments.setEnabled(false);
         jScrollPane4.setViewportView(txtTaskComments);
 
@@ -629,7 +646,7 @@ public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observ
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnClose)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         pack();
@@ -705,7 +722,7 @@ public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observ
             final TaskItem taskItem = (TaskItem) item;
 
             // returns true if the worker is null and therefore unallocated
-            return (taskItem.getWorker() != null && taskItem.getStatus() != TaskStatus.COMPLETE && taskItem.getWorkRoleType() == user.getRole());
+            return (taskItem.getWorker() == user && taskItem.getStatus() != TaskStatus.COMPLETE);
         }
     }
     

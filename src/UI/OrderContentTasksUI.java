@@ -85,7 +85,7 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
             @Override
             public void caretUpdate(CaretEvent e) 
             {
-                if(txtTaskDescription.getText().length() > 0)
+                if(txtTaskDescription.getText().length() > 0 && txtTaskDescription.isEnabled())
                 {
                     btnCreateTask.setEnabled(true);
                 }
@@ -491,7 +491,9 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
         jScrollPane1.setEnabled(false);
 
         txtDescription.setColumns(20);
+        txtDescription.setLineWrap(true);
         txtDescription.setRows(5);
+        txtDescription.setWrapStyleWord(true);
         txtDescription.setEnabled(false);
         txtDescription.setFocusable(false);
         jScrollPane1.setViewportView(txtDescription);
@@ -563,10 +565,12 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
         lblTaskDescription.setText("Description");
 
         txtTaskDescription.setColumns(20);
+        txtTaskDescription.setLineWrap(true);
         txtTaskDescription.setRows(5);
+        txtTaskDescription.setWrapStyleWord(true);
         jScrollPane2.setViewportView(txtTaskDescription);
 
-        lblWorkRole.setText("Worker Role");
+        lblWorkRole.setText("For Work Role");
 
         lblAllocatedTo.setText("Allocated To");
 
@@ -590,7 +594,7 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
             }
         });
 
-        lblNewStatus.setText("New Status");
+        lblNewStatus.setText("Action");
 
         cmbTaskNewStatus.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         cmbTaskNewStatus.addActionListener(new java.awt.event.ActionListener() {
@@ -604,17 +608,13 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
         pnlTaskCreationLayout.setHorizontalGroup(
             pnlTaskCreationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlTaskCreationLayout.createSequentialGroup()
+                .addGap(16, 16, 16)
                 .addGroup(pnlTaskCreationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblPriority)
-                    .addGroup(pnlTaskCreationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(pnlTaskCreationLayout.createSequentialGroup()
-                            .addGap(16, 16, 16)
-                            .addComponent(lblWorkRole))
-                        .addGroup(pnlTaskCreationLayout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(lblAllocatedTo)))
+                    .addComponent(lblWorkRole)
                     .addComponent(lblTaskDescription)
-                    .addComponent(lblNewStatus))
+                    .addComponent(lblNewStatus)
+                    .addComponent(lblAllocatedTo))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(pnlTaskCreationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
@@ -694,7 +694,7 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
                         .addComponent(pnlTaskCreation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCloseForm)
-                        .addGap(0, 4, Short.MAX_VALUE))
+                        .addGap(0, 28, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(spnlPanel)))

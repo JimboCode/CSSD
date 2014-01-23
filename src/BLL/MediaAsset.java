@@ -104,6 +104,9 @@ public class MediaAsset extends MediaItem
                         break;
                     }    
                 }
+                               
+                // update the status
+                this.status = thisStatus;
                 
                 // set if task will require a file
                 boolean fileRequired = getFileRequiredWithStatus(thisStatus);
@@ -116,9 +119,6 @@ public class MediaAsset extends MediaItem
                 
                 // addTask
                 addTask(task);
-                
-                // update the status
-                this.status = thisStatus;
                 
                 // notify update
                 raiseUpdateEvent();
@@ -140,7 +140,6 @@ public class MediaAsset extends MediaItem
     {
         MediaStatus newStatus = null;
         String description = "";
-        Worker allocateTo = null;
         switch (status)
         {
             case REQUESTED_FROM_CLIENT: case ORDERED_FROM_CONTRACTOR: 
@@ -153,8 +152,7 @@ public class MediaAsset extends MediaItem
                 
                 // set the status to update to
                 newStatus = MediaStatus.ARRIVED_IN_VAULT;
-                description = "Asset provided; Ready for inward QC (Comment : " + comments + ")";
-                // allocateTo = ;
+                description = "Asset provided by " + currentTask.getWorker() +"; Ready for inward QC";
                 break;
             }
             case FIXES_COMPLETED:
@@ -165,7 +163,7 @@ public class MediaAsset extends MediaItem
                 
                 // set the status to update to
                 newStatus = MediaStatus.AWAITING_QC;
-                description = "Fixes completed; Ready for QC (Comment : " + comments + ")";
+                description = "Fixes completed by " + currentTask.getWorker() +"; Ready for QC (Comment : " + comments + " )";
                 break;
             }
             case COMPRESSION_COMPLETED:
@@ -176,7 +174,7 @@ public class MediaAsset extends MediaItem
                 
                 // set the status to update to
                 newStatus = MediaStatus.AWAITING_QC;
-                description = "Fixes completed; Ready for QC (Comment : " + comments + ")";
+                description = "Fixes completed by " + currentTask.getWorker() +"; Ready for QC (Comment : " + comments + " )";
                 break;
             }
         }
@@ -184,16 +182,14 @@ public class MediaAsset extends MediaItem
         // if status changing raise a new task
         if (newStatus != null) 
         {
+            this.status = newStatus;
+            
+            if (!comments.isEmpty()) description += " (Comment : " + comments + " )";            
             // create a new task MediaItem mediaItem, WorkerRoles workRoleType, int priority, TaskStatus status, String description, boolean fileRequired
             TaskItem task = new TaskItem(this, WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false);
-
-            // if allocated to an individual set the assignment
-            if (allocateTo != null) task.setWorker(allocateTo);
-
+            
             // addTask
             addTask(task);
-            
-            this.status = newStatus;
             
             // notify update
             raiseUpdateEvent();
@@ -206,6 +202,29 @@ public class MediaAsset extends MediaItem
         if (currentTask.isFileRequired())
         {
             addFile(currentTask.getFilename(), comments);
+        }
+        
+        if (currentTask.getQCReport()!= null &&
+                status == MediaStatus.INWARD_QC ||
+                status == MediaStatus.AWAITING_QC)
+        {
+            currentFile.setQCReport(currentTask.getQCReport());
+            
+            this.status = MediaStatus.QC_REPORT_AVALIABLE;
+            String description = "QC Report avaliable";
+            if (!comments.isEmpty()) description += " (Comment : " + comments + " )";            
+            // create a new task MediaItem mediaItem, WorkerRoles workRoleType, int priority, TaskStatus status, String description, boolean fileRequired
+            TaskItem task = new TaskItem(this, WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false);
+            
+            QCReport report = currentTask.getQCReport();
+            
+            task.setQCReport(report);
+            
+            // addTask
+            addTask(task);
+            
+            // notify update
+            raiseUpdateEvent();
         }
     }
     
