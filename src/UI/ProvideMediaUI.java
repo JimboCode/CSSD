@@ -36,7 +36,7 @@ import javax.swing.event.ListSelectionListener;
 /**
  * Used by Client and Contractors to view their tasks, update tasks and submit media requested
  * 
- * @author James
+ * @author James Staite
  */
 public class ProvideMediaUI extends javax.swing.JInternalFrame implements Observer
 {

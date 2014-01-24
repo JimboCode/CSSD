@@ -1,21 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package BLL;
 
 /**
- *
+ * Store the file location and maintains a version where changed
  * @author James Staite
  */
 class File
 {
+    // filename including path
     private String name;
 
+    // status of the file e.g. DEFECTIVE, OBSOLETE etc.
     private FileStatus status;
 
+    // current version
     private int version;
 
+    // associated QC report with this file
     private QCReport report;
 
     /**
@@ -32,36 +32,51 @@ class File
     }
 
     /**
-     * @return the name
+     * Provides the filename
+     * @return the name of the file including it path
      */
     public String getName() {
         return name;
     }
 
     /**
-     * @return the status
+     * Provides the status of the file
+     * @return the status of the file
      */
     public FileStatus getStatus() {
         return status;
     }
 
+    /**
+     * Sets the status of the file
+     * @param status status to be applied to the file
+     */
     public void setStatus(FileStatus status)
     {
         this.status = status;
     }
 
     /**
-     * @return the version
+     * Provides the version of the file
+     * @return the version the file version
      */
     public int getVersion() {
         return version;
     }
 
+    /**
+     * Set the QC report associated with this file
+     * @param report The report object to be associated
+     */
     public void setQCReport(QCReport report)
     {
         this.report = report;
     }
 
+    /**
+     * Provides the the QC Report associated with this file if there is one
+     * @return Null or a QC Report
+     */
     public QCReport getQCReport()
     {
         return report;

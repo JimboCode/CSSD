@@ -2,6 +2,7 @@ package UI;
 
 import BLL.QCReport;
 import BLL.QCReport.Fault;
+import BLL.TaskItem;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.swing.EventJXTableModel;
@@ -15,11 +16,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
- *
- * @author James
+ * QC Report viewer used for moderation and viewing once moderated
+ * @author James Staite
  */
 public class QCReportViewerUI extends ModalBase 
 {
+    // report being viewed
     private QCReport report;
     
     // forms current fault
@@ -28,18 +30,21 @@ public class QCReportViewerUI extends ModalBase
     /**
      * Creates new form QCReportViewerUI
      */
-    public QCReportViewerUI(QCReport qCReport) 
+    public QCReportViewerUI(TaskItem task) 
     {
         super("Quality Control Report",false,true,false,false);
         initComponents();
         
         // store report
-        report = qCReport;
+        report = task.getQCReport();
         
+        // loads the fault into the table
         loadFaultsTable();
         
+        // if the report has been moderated do not display the finialise button
         if (report.isReportmoderated() == true) btnFinialise.setVisible(false);
         
+        // setup the table listener
         tblFlauts.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             @Override
             public void valueChanged(ListSelectionEvent event) {
@@ -48,16 +53,23 @@ public class QCReportViewerUI extends ModalBase
             }
         });
         
-        txtLeaderComments.addCaretListener(new CaretListener() 
+        // set up the text field validation listener if the report has not yet been moderated
+        if (report.isReportmoderated() == false)
         {
-            @Override
-            public void caretUpdate(CaretEvent e) 
+           txtLeaderComments.addCaretListener(new CaretListener() 
             {
-                validateForm();
-            }
-        });
+                @Override
+                public void caretUpdate(CaretEvent e) 
+                {
+                    validateForm();
+                }
+            }); 
+        }
     }
     
+    /**
+     * Load the faults from the report into the table
+     */
     private void loadFaultsTable()
     {
         // define properties and column labels
@@ -84,6 +96,9 @@ public class QCReportViewerUI extends ModalBase
         tblFlauts.setColumnSelectionAllowed(false);
     }
     
+    /**
+     * Handles row selection of each fault
+     */
     private void rowselection()
     {
         //check if any items are selected
@@ -115,6 +130,7 @@ public class QCReportViewerUI extends ModalBase
         }
         else
         {
+            // clear the controls if not row selected
             clearFaultControls();
             btnUpdate.setEnabled(false);
             txtLeaderComments.setEnabled(false);
@@ -122,6 +138,9 @@ public class QCReportViewerUI extends ModalBase
         }
     }
     
+    /**
+     * Clear the fault moderation entry controls
+     */
     private void clearFaultControls()
     {
         faultDescription.setText("");
@@ -131,45 +150,64 @@ public class QCReportViewerUI extends ModalBase
         cmbFaultSeveity.setSelectedIndex(0);
     }
     
+    /**
+     * Handles form validation
+     */
     private void validateForm()
     {
+        // check that the comment field has been completed
         if (!txtLeaderComments.isEnabled() || txtLeaderComments.getText().length() == 0) 
         {
             btnUpdate.setEnabled(false);
-            if (report.isReportmoderated() == true) btnCancel.setEnabled(true);
+            btnCancel.setEnabled(true);
         }
         else
         {
             btnUpdate.setEnabled(true);
-            if (report.isReportmoderated() == true) btnCancel.setEnabled(true);
+            btnCancel.setEnabled(true);
         }
     }
     
+    /**
+     * Handles the update button
+     */
     private void updateButton()
     {
+        // update the fault with the comments and severity
         fault.setModeratedComments(txtLeaderComments.getText());
         fault.setModeratedSeverity(Integer.parseInt((String)cmbLeaderSeveity.getSelectedItem()));
         
+        // reset the forms controls
         clearFaultControls();
         btnUpdate.setEnabled(false);
         btnCancel.setEnabled(false);
-                
         fault = null;
         cmbLeaderSeveity.setEnabled(false);
         txtLeaderComments.setEnabled(false);
+        
+        // select the next fault if there is one
         int row = tblFlauts.getSelectedRow();
+        
+        // check row of fault is less than last flaut and there is row selected
         if (row < (tblFlauts.getModel().getRowCount()-1) && row > -1)
         {
+            // advance to the next row
             row++;
             tblFlauts.setRowSelectionInterval(row,row);
         } 
         else
         {
+            // else select the first row
             tblFlauts.setRowSelectionInterval(0,0);
         }
+        
+        // set focus on the next set of comments
         txtLeaderComments.requestFocus();
     }
     
+    /**
+     * Handles cancel button action
+     */
     private void cancelRemovebutton()
     {
         clearFaultControls();
@@ -179,6 +217,9 @@ public class QCReportViewerUI extends ModalBase
         tblFlauts.clearSelection();
     }
     
+    /**
+     * Handles the close button
+     */
     private void closeButton()
     {
         try {

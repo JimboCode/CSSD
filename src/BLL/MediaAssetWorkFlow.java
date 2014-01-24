@@ -9,8 +9,15 @@ package BLL;
  */
 public class MediaAssetWorkFlow extends MediaItemWorkFlow
 {
+    /**
+     * Implements the MediaItemWorkFlow interface and provides valid status changes for the given parameters
+     * @param status current status of the mediaItem
+     * @param mediaSource the media source of the mediaItem
+     * @param worker the worker requesting the change
+     * @return a MediaStatus[] array of valid options
+     */
     @Override
-    public MediaStatus[] getValidStatusOptions(MediaStatus status, boolean withAFile, MediaSource mediaSource, Worker worker) 
+    public MediaStatus[] getsValidStatusOptions(MediaStatus status, MediaSource mediaSource, Worker worker) 
     {
         switch (status)
         {
@@ -41,36 +48,6 @@ public class MediaAssetWorkFlow extends MediaItemWorkFlow
                 else return new MediaStatus[] {};
             }
             
-            case REQUESTED_FROM_CLIENT: case REPLACEMENT_REQUESTED_FROM_CLIENT:
-            {
-                if (worker.getWorkerType() == WorkerType.CLIENT) return new MediaStatus[] {MediaStatus.ARRIVED_IN_VAULT};
-                else return new MediaStatus[] {};
-            }
-            
-            case ORDERED_FROM_CONTRACTOR: case REORDERED_FROM_CONTRACTOR:
-            {
-                if (worker.getWorkerType() == WorkerType.CONTRACTOR) return new MediaStatus[] {MediaStatus.ARRIVED_IN_VAULT};
-                else return new MediaStatus[] {};
-            }
-            
-            case ORDERED_IN_HOUSE:
-            {
-                if (worker.getRole() == WorkerRoles.AUTHOR) return new MediaStatus[] {MediaStatus.ARRIVED_IN_VAULT};
-                else return new MediaStatus[] {};
-            }
-                
-            case ARRIVED_IN_VAULT:
-            {
-                if (worker.getRole() == WorkerRoles.PROJECT_MANAGER ||
-                        worker.getRole() == WorkerRoles.QC_TEAM_LEADER) return new MediaStatus[] {MediaStatus.INWARD_QC};
-                else return new MediaStatus[]{};
-            }
-            case INWARD_QC: case AWAITING_QC:
-            {
-                if (worker.getRole() == WorkerRoles.QC_TEAM_LEADER) return new MediaStatus[] {MediaStatus.QC_REPORT_AVALIABLE};
-                else return new MediaStatus[] {};
-            }
-                
             case QC_REPORT_AVALIABLE:
             {
                 if (worker.getRole() == WorkerRoles.QC_TEAM_LEADER)
@@ -94,33 +71,9 @@ public class MediaAssetWorkFlow extends MediaItemWorkFlow
                 else return new MediaStatus[] {};
             }
                 
-            case FIXES_ORDERED_DELAYED:
-            {
-                if (worker.getRole() == WorkerRoles.AUTHOR && withAFile) return new MediaStatus[] {MediaStatus.FIXES_COMPLETED};
-                else return new MediaStatus[] {};
-            }
-                
-            case FIXES_COMPLETED:
-            {
-                if (worker.getRole() == WorkerRoles.QC_TEAM_LEADER) return new MediaStatus[] {MediaStatus.AWAITING_QC};
-                else return new MediaStatus[] {};
-            }
-                
-            case APPROVED_FOR_COMPRESSION:
-            {
-                if (worker.getRole() == WorkerRoles.QC_TEAM_LEADER) return new MediaStatus[] {MediaStatus.COMPRESSION_COMPLETED};
-                else return new MediaStatus[] {};
-            }
-                
-            case COMPRESSION_COMPLETED:
-            {
-                if (worker.getRole() == WorkerRoles.AUTHOR && withAFile) return new MediaStatus[] {MediaStatus.AWAITING_QC};
-                else return new MediaStatus[] {};
-            }
-                
             case ASSET_READY:
             {
-                if (worker.getRole() == WorkerRoles.QC_TEAM_LEADER) 
+                if (worker.getRole() == WorkerRoles.PROJECT_MANAGER) 
                 {
                     switch (mediaSource)
                     {
@@ -147,44 +100,33 @@ public class MediaAssetWorkFlow extends MediaItemWorkFlow
         }
     }
     
+    /**
+     * Provides an array of worker roles that a media status can be allocated to
+     * @param status the status that the roles are required for
+     * @return an array of WorkerRoles[] that are valid allocations for the status provided
+     */
     @Override
     public WorkerRoles[] getValidAllocateToWorkerRoles(MediaStatus status)
     {
-        if (status == null) return new WorkerRoles[]{};
-        
         switch (status)
         {
-            case AWAITING_ACTION:
-            {
-                return new WorkerRoles[]{WorkerRoles.PROJECT_MANAGER};
-            }
-            
             case ORDERED_IN_HOUSE: case ARRIVED_IN_VAULT: case FIXES_ORDERED_DELAYED:
             {
-                return new WorkerRoles[]{WorkerRoles.AUTHOR, WorkerRoles.INTERRUPTER};
-            }
-            
-            case APPROVED_FOR_COMPRESSION:
-            {
-                return new WorkerRoles[]{WorkerRoles.AUTHOR};                
+                return new WorkerRoles[]{WorkerRoles.AUTHOR};
             }
                 
-            case INWARD_QC: case AWAITING_QC:
-            {
-                return new WorkerRoles[]{WorkerRoles.QC};
-            }
-            case QC_REPORT_AVALIABLE: case FIXES_COMPLETED: case COMPRESSION_COMPLETED: case ASSET_READY:
-            {
-                return new WorkerRoles[]{WorkerRoles.QC_TEAM_LEADER};
-            }
             case REQUESTED_FROM_CLIENT: case REPLACEMENT_REQUESTED_FROM_CLIENT:
             {
                 return new WorkerRoles[]{WorkerRoles.CLIENT};
             }
         
-        case ORDERED_FROM_CONTRACTOR: case REORDERED_FROM_CONTRACTOR:
+            case ORDERED_FROM_CONTRACTOR: case REORDERED_FROM_CONTRACTOR:
             {
                 return new WorkerRoles[]{WorkerRoles.CONTRACTOR};
+            }
+            case ASSET_READY:
+            {
+                return new WorkerRoles[]{WorkerRoles.PROJECT_MANAGER};
             }
                         
             default:
@@ -192,28 +134,5 @@ public class MediaAssetWorkFlow extends MediaItemWorkFlow
                 return new WorkerRoles[]{};
             }
         }        
-    }
-
-    @Override
-    public boolean getFileRequiredWithStatus(MediaStatus status) 
-    {
-        if (status == null) return false;
-        
-        switch (status)
-        {
-            case ORDERED_IN_HOUSE:
-            case REQUESTED_FROM_CLIENT:
-            case FIXES_ORDERED_DELAYED:
-            case REPLACEMENT_REQUESTED_FROM_CLIENT:
-            case ORDERED_FROM_CONTRACTOR:
-            case REORDERED_FROM_CONTRACTOR:
-            {
-                return true;
-            }
-            default:
-            {
-                return false;
-            }
-        }       
     }
 }

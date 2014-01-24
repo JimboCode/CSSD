@@ -2,10 +2,11 @@ package BLL;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Stack;
 
 /**
- *
+ * This class managers is used for additions and removals of MediaItems from the tree structure
+ * It provides all events to the TaskList and ContentTree objects from activity from MediaItems
+ * 
  * @author James Staite
  */
 public class ContentManager extends Observable implements Observer
@@ -18,6 +19,9 @@ public class ContentManager extends Observable implements Observer
     
     // Assets workflow controller
     MediaItemWorkFlow assetController = new MediaAssetWorkFlow();
+    
+    // Assets workflow controller
+    MediaAssetSubtitlesWorkFlow assetSubtitlesController = new MediaAssetSubtitlesWorkFlow();
     
     TaskList tasklist;
     
@@ -49,13 +53,30 @@ public class ContentManager extends Observable implements Observer
         switch (nodeType)
         {
             case ELEMENT:
-                // TODO pass in reference to media player for the component type (Stragery Pattern)
+            {
+                // inserts the appropiate controller class - Strategy pattern
                 child = new MediaElement(name, description, type, parent, elementController);
                 break;
+            }
+            
             case ASSET:
-                // TODO pass in reference to media player for the component type (Stragery Pattern)
-                child = new MediaAsset(name, description, type, parent, assetController);
+            {
+                switch(type)
+                {
+                    // inserts the appropiate controller class - Strategy pattern
+                    case SUBTITLES:
+                    {
+                        child = new MediaAsset(name, description, type, parent, assetSubtitlesController);
+                        break;
+                    }
+                    default:
+                    {
+                        child = new MediaAsset(name, description, type, parent, assetController);
+                    }
+                }
                 break;
+            }   
+            
             default:
             {
                 return child;
@@ -88,20 +109,16 @@ public class ContentManager extends Observable implements Observer
         }
     }
     
+    /**
+     * Move a MediaItem node from one parent to another
+     * 
+     * @param newParent the new parent MediaItem to have the child node attached
+     * @param child the child node to be moved to the parent node
+     */
     public void moveItem(MediaItem newParent, MediaItem child)
     {
         // reassign parent
         child.setParent(newParent);
-    }
-    
-    /**
-     * Add file to a MediaItem
-     * @param item MediaItem receiving the file
-     * @param filename Filename including directory structure
-     */
-    public void addFile(MediaItem item, String filename)
-    {
-        
     }
     
     /**
@@ -123,44 +140,6 @@ public class ContentManager extends Observable implements Observer
         return rootNode;
     }
     
-    /**
-     * Reload any child nodes when a node is moved 
-     * This is because the node is deleted and then added in it new position
-     * The adding does not add any child nodes.
-     * @param node The node for which any children nodes will be added.
-     */
-    private void addChildChildren(MediaItem node)
-    {
-        // define temp varaiables
-        MediaItem parentNode;
-        // define temp storage for search
-        Stack<MediaItem> stack = new Stack();
-        
-        // push the top of the tree onto the stack to start search from it
-        stack.push(node);
-        
-        // loop until the stack has been emptied
-        while(!stack.empty())
-        {
-            // pull the next parent node off the stack
-            parentNode =  stack.pop();
-            
-            // add all children
-            for(MediaItem child : parentNode.getChildren())
-            {
-                // raise an update event to add this node to any tree
-                // flag change
-                setChanged();
-                // send notification of new child to add to tree
-                notifyObservers(new ContentEvent(parentNode, child, ContentEvent.ADD));
-                
-                // if the child node has children push it onto the stack to check its children later
-                if (child instanceof MediaElement)
-                    stack.push(child);
-            }
-        }
-    }
-
     /**
      * Receives change updates from MediaItems in the tree
      * @param object the MediaItem raising the event

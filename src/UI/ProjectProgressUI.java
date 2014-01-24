@@ -100,17 +100,26 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
      */
     private void rowselection()
     {
+        // chack that a row has been selected
         if (currentTable.getSelectedRow() > -1)
         {
+            // get the task and report for the selected row
             EventJXTableModel tableModel = (EventJXTableModel) currentTable.getModel();
             task = (TaskItem) tableModel.getElementAt(currentTable.getSelectedRow());
             report = task.getQCReport();
             
+            // enable the View QCReport button if a report is avaliable
             if (report != null) btnViewQCReport.setEnabled(true); else btnViewQCReport.setEnabled(false);
+            
+            // if the row selected is for tasks which have not yet been started then
             if (checkAllocationFlag == true)
             {
+                // Check if there are more worker allocation options for the task
+                
+                // get the worker type
                 WorkerRoles roleType = task.getWorkRoleType();
                 
+                // make a list of possible workers
                 reallocations.clear();
                 switch (roleType)
                 {
@@ -134,8 +143,11 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
                         reallocations.addAll(project.findWorkersByRole(roleType));
                     }
                 }
+                
+                // if there are more than 1 possible worker then
                 if (reallocations.size() > 1)
                 {
+                    // load avaliable choices and update the form
                     loadAllocateToCombo(reallocations);
                     cmbChangeAllocation.setSelectedItem(task.getWorker());
                     cmbChangeAllocation.setEnabled(true);
@@ -144,6 +156,7 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
                 }
                 else
                 {
+                    // if not alter the form state
                     cmbChangeAllocation.setModel(new DefaultComboBoxModel());
                     cmbChangeAllocation.setEnabled(false);
                     cmbChangePriority.setEnabled(false);
@@ -152,6 +165,7 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
             }
             else
             {
+                // alter the form state because relocation is not possible
                 cmbChangeAllocation.setModel(new DefaultComboBoxModel());
                 cmbChangeAllocation.setEnabled(false);
                 cmbChangePriority.setEnabled(false);
@@ -160,6 +174,10 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
         }
     }
     
+    /**
+     * Fill out the combo box with avaliable worker allocation choices
+     * @param reallocations 
+     */
     private void loadAllocateToCombo(ArrayList<Worker> reallocations)
     {
         // create a new model
@@ -173,6 +191,10 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
         cmbChangeAllocation.setModel(allToComboModel);
     }
     
+    /**
+     * Setup the tables with the task list details based upon the project
+     * @param project project to get the task list for
+     */
     private void setupTable(Project project)
     {
         // get the tasklist object from the project
@@ -237,12 +259,21 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
         EventJXTableModel CompTableModel = new EventJXTableModel(completedTasks, tableFormat);
         tblCompletedTasks.setModel(CompTableModel);
         
+        // format the columns perferred sizes
         setColumnWidths(tblUnallocatedTasks,columnSizes);
         setColumnWidths(tblAllocatedTasks,columnSizes);
         setColumnWidths(tblTasksInProgress,columnSizes);
         setColumnWidths(tblCompletedTasks,columnSizes);
+        
+        // initialise currenttable
+        currentTable = tblUnallocatedTasks;
     }
     
+    /**
+     * formats the column sizes and selection model
+     * @param table table to have formatting applied
+     * @param columnSizes // an array of preferred widths
+     */
     private void setColumnWidths(JTable table, int columnSizes[])
     {
         int col = 0;
@@ -257,28 +288,48 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
         table.setColumnSelectionAllowed(false);
     }
     
+    /**
+     * Finds the selected task when updating it field cause it to move tables
+     */
     private void findItemAndSelectIt()
     {
+        // only run if the current table does not have an item selected
         if (currentTable.getSelectedRowCount() == 0)
         {
-           if (scanTableAndSelect(tblUnallocatedTasks)) return;
-           scanTableAndSelect(tblAllocatedTasks);
+            // scan the unallocated table first
+            if (scanTableAndSelect(tblUnallocatedTasks)) return;
+            
+            // if not found then scan the allocated table
+            scanTableAndSelect(tblAllocatedTasks);
         }
     }
     
+    /**
+     * iterate over a tables row look for the current task
+     * @param table the table to look thought
+     * @return true if the current task was found
+     */
     private boolean scanTableAndSelect(JTable table)
     {
+        // get the number of rows
         int numRows = table.getModel().getRowCount();
+        
+        // get a reference to the table model
         EventJXTableModel tableModel = (EventJXTableModel) table.getModel();
                 
+        // loop over the rows look for the task
         for(int i =0; i < numRows; i++)
         {
+            // check if this row contains the task
             if (((TaskItem)tableModel.getElementAt(i)) == task)
             {
+                // if found selection the row & exit
                 table.setRowSelectionInterval(i,i);
                 return true;
             }
         }
+        
+        // failed to find the task
         return false;
     }
     
@@ -338,21 +389,25 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
         proReg.deleteObserver(this);
     }
     
+    /**
+     * Sets up the selection listeners for all four tables
+     */
     private void setupSelectionListener()
     {
         tblUnallocatedTasks.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             @Override
             public void valueChanged(ListSelectionEvent event) {
-                // possible row selection
+                // possible row selection - check that not fired by another selection listener 
+                // changing tables
                 if (!event.getValueIsAdjusting() && ChangingTables == false)
                 {
                     ChangingTables = true;
+                    
+                    // set the new current table and clear any existing row selections
                     if (currentTable != tblUnallocatedTasks)
                     {
+                        currentTable.clearSelection();
                         currentTable = tblUnallocatedTasks;
-                        tblAllocatedTasks.clearSelection();
-                        tblTasksInProgress.clearSelection();
-                        tblCompletedTasks.clearSelection();
                         checkAllocationFlag = true; 
                     }
                     rowselection();
@@ -364,16 +419,15 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
         tblAllocatedTasks.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             @Override
             public void valueChanged(ListSelectionEvent event) {
-                // possible row selection
+                // possible row selection - check that not fired by another selection listener 
+                // changing tables
                 if (!event.getValueIsAdjusting() && ChangingTables == false)
                 {
                     ChangingTables = true;
                     if (currentTable != tblAllocatedTasks)
                     {
+                        currentTable.clearSelection();
                         currentTable = tblAllocatedTasks;
-                        tblUnallocatedTasks.clearSelection();
-                        tblTasksInProgress.clearSelection();
-                        tblCompletedTasks.clearSelection();
                         checkAllocationFlag = true;
                     }
                     rowselection();
@@ -385,16 +439,15 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
         tblTasksInProgress.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             @Override
             public void valueChanged(ListSelectionEvent event) {
-                // possible row selection
+                // possible row selection - check that not fired by another selection listener 
+                // changing tables
                 if (!event.getValueIsAdjusting() && ChangingTables == false)
                 {
                     ChangingTables = true;
                     if (currentTable != tblTasksInProgress)
                     {
+                        currentTable.clearSelection();
                         currentTable = tblTasksInProgress;
-                        tblUnallocatedTasks.clearSelection();
-                        tblAllocatedTasks.clearSelection();
-                        tblCompletedTasks.clearSelection();
                         checkAllocationFlag = false;
                     }
                     rowselection();
@@ -406,16 +459,15 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
         tblCompletedTasks.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             @Override
             public void valueChanged(ListSelectionEvent event) {
-                // possible row selection
+                // possible row selection - check that not fired by another selection listener 
+                // changing tables
                 if (!event.getValueIsAdjusting() && ChangingTables == false)
                 {
                     ChangingTables = true;
                     if (currentTable != tblCompletedTasks)
                     {
+                        currentTable.clearSelection();
                         currentTable = tblCompletedTasks;
-                        tblUnallocatedTasks.clearSelection();
-                        tblAllocatedTasks.clearSelection();
-                        tblTasksInProgress.clearSelection();
                         checkAllocationFlag = false;
                     }
                     rowselection();
@@ -648,7 +700,7 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
     }//GEN-LAST:event_btnCloseActionPerformed
 
     private void btnViewQCReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewQCReportActionPerformed
-        QCReportViewerUI frm = new QCReportViewerUI(report);
+        QCReportViewerUI frm = new QCReportViewerUI(task);
         frm.modal = true;
         this.getDesktopPane().add(frm);
         frm.setVisible(true);
@@ -692,30 +744,31 @@ public class ProjectProgressUI extends javax.swing.JInternalFrame implements Obs
     private javax.swing.JTable tblTasksInProgress;
     private javax.swing.JTable tblUnallocatedTasks;
     // End of variables declaration//GEN-END:variables
-        /**
-         * Class used to carry out filter matching by GlazedLists
-         */
-        private static class UnallocatedMatcher implements Matcher 
+        
+    /**
+     * Class used to carry out filter matching 
+     */
+    private static class UnallocatedMatcher implements Matcher 
+    {
+        public UnallocatedMatcher() 
         {
-            public UnallocatedMatcher() 
-            {
-            }
-
-            /**
-             * provides matching functionality for each object
-             * @param item the object to be matched
-             * @return boolean of the match
-             */
-            @Override
-            public boolean matches(Object item) 
-            {
-                // convert the object to its true type
-                final TaskItem taskItem = (TaskItem) item;
-                
-                // returns true if the worker is null and therefore unallocated
-                return (taskItem.getWorker() == null);
-            }
         }
+
+        /**
+         * provides matching functionality for each object
+         * @param item the object to be matched
+         * @return boolean of the match
+         */
+        @Override
+        public boolean matches(Object item) 
+        {
+            // convert the object to its true type
+            final TaskItem taskItem = (TaskItem) item;
+
+            // returns true if the worker is null and therefore unallocated
+            return (taskItem.getWorker() == null);
+        }
+    }
         
         /**
          * Class used to carry out filter matching by GlazedLists

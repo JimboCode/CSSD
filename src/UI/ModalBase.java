@@ -10,18 +10,33 @@ import javax.swing.JInternalFrame;
 import javax.swing.SwingUtilities;
 
 /**
- *
+ * Base class to provide modal like behaviour to JInternalFrame classes
+ * 
  * @author James Staite
  */
 public class ModalBase extends JInternalFrame
 {
+    // behaviour flag
     boolean modal = false;
 
+    /**
+     * Constructor to extend the base class
+     * @param title Title of the window
+     * @param resizeable if can be resized
+     * @param closable if closable
+     * @param maximizable if window can be maximised
+     * @param iconifable if window can be minimised
+     */
     public ModalBase(String title, boolean resizeable, boolean closable, boolean maximizable, boolean iconifable)
     {
+        // pass call to base class
         super(title, resizeable, closable, maximizable, iconifable);
     }
     
+    /**
+     * override show method to invoke the extra method to do the necessary additional work
+     * to make the window modal
+     */
     @Override
     public void show() 
     {
@@ -29,6 +44,10 @@ public class ModalBase extends JInternalFrame
         if (this.modal) startModal();
     }
 
+    /**
+     * overrides the to turn on and off the mock modal behaviour
+     * @param value value
+     */
     @Override
     public void setVisible(boolean value) 
     {
@@ -39,6 +58,9 @@ public class ModalBase extends JInternalFrame
         }
     }
 
+    /**
+     * sets up the mock modal behaviour
+     */
     private synchronized void startModal() 
     {
         try {
@@ -93,14 +115,25 @@ public class ModalBase extends JInternalFrame
         catch (InterruptedException ignored) {}
     }
 
+    /**
+     * Raise event when modal behaviour is turn off
+     */
     private synchronized void stopModal() {
         notifyAll();
     }
 
+    /**
+     * set the modal behaviour of the form
+     * @param modal on - true / off - false
+     */
     public void setModal(boolean modal) {
         this.modal = modal;
     }
 
+    /**
+     * Return the current modal state of the form
+     * @return boolean answer
+     */
     public boolean isModal() {
         return this.modal;
     }

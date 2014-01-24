@@ -15,8 +15,13 @@ import java.util.Observer;
  */
 public class TaskList implements Observer
 {
+    // master list of all tasks for a project
     EventList<TaskItem> mediaItemTasks = GlazedLists.threadSafeList(new BasicEventList<TaskItem>());
+    
+    // event handler for observable list
     ObservableElementList.Connector<TaskItem> taskListConnector = GlazedLists.beanConnector(TaskItem.class);
+    
+    // Observerable version of the master task list
     EventList<TaskItem> observedTasks = new ObservableElementList<>(mediaItemTasks,taskListConnector);
     
     // reference to the content manager
@@ -25,6 +30,14 @@ public class TaskList implements Observer
     // reference to the project
     Project project;
     
+    /**
+     * Sets up the TaskList for use;  main purpose is to maintain master list;
+     * add new tasks as notified by events from the ContentManager
+     * 
+     * @param contentManager reference to ContentManager used so TaskList can register for update events on TaskItems
+     * @param project The project that is TaskList belongs to obtain QC Team Leader and Project Manager and add them to
+     * task allocated to their role
+     */
     public TaskList(ContentManager contentManager, Project project)
     {
         // hold references required
@@ -35,6 +48,11 @@ public class TaskList implements Observer
         contentManager.addObserver(this);
     }
     
+    /**
+     * Receives update events from ContentManager about new task items to add to the master list
+     * @param object The call object (in this case ContentManger)
+     * @param arg Argument (in this case the TaskItem)
+     */
     @Override
     public void update(Observable object, Object arg) {
         
@@ -62,6 +80,10 @@ public class TaskList implements Observer
         }
     }
     
+    /**
+     * Adds new TaskItems to the master list for the project
+     * @param newTask the new TaskItem
+     */
     private void addTaskToList(TaskItem newTask)
     {
         // check if the task has been allocated to the QC Team Leader
@@ -85,6 +107,10 @@ public class TaskList implements Observer
         if (worker != null) worker.assignTask(project, newTask);
     }
     
+    /**
+     * Removes all tasks belonging to a MediaItem
+     * @param mediaItem MediaItem which tasks belong to
+     */
     private void removeAllTask(MediaItem mediaItem)
     {
         // iterate over the tasklist looking for task that belong to the mediaItem
@@ -110,6 +136,11 @@ public class TaskList implements Observer
         }
     }
     
+    /**
+     * Provides a reference to the observable master task list for the project for use in
+     * UI JTables
+     * @return 
+     */
     public EventList<TaskItem> getTaskList()
     {
         return observedTasks;

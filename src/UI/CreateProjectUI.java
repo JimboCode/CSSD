@@ -5,7 +5,6 @@ import BLL.ClientRegister;
 import BLL.Project;
 import BLL.ProjectRegister;
 import BLL.Region;
-import BLL.Staff;
 import BLL.Worker;
 import java.awt.Color;
 import java.beans.PropertyVetoException;
@@ -134,6 +133,9 @@ public class CreateProjectUI extends javax.swing.JInternalFrame implements Obser
         clientReg.addObserver(this);
     }
     
+    /**
+     * de-registers for update events from ClientRegister
+     */
     private void deregisterEvents()
     {
         // get reference to client register and register for events

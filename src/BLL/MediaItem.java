@@ -223,14 +223,14 @@ public abstract class MediaItem extends Observable
      * @param withAFile boolean indicating if the status change includes providing a file
      * @return MediaStatus[] of valid status option that the current status can be updated to
      */
-    public MediaStatus[] getValidStatusOptions(boolean withAFile, Worker worker)
+    public MediaStatus[] getValidStatusOptions(Worker worker)
     {
-        return workFlow.getValidStatusOptions(status, withAFile, mediaSource, worker);
+        return workFlow.getHandledValidStatusOptions(status, mediaSource, worker);
     }
     
     public WorkerRoles[] getValidAllocateWorkRoles(MediaStatus status)
     {
-        return workFlow.getValidAllocateToWorkerRoles(status);
+        return workFlow.getHandledValidAllocateToWorkerRoles(status);
     }
     
     public boolean getFileRequiredWithStatus(MediaStatus status)
@@ -238,10 +238,9 @@ public abstract class MediaItem extends Observable
         return workFlow.getFileRequiredWithStatus(status);
     }
     
-    protected void addTask(TaskItem newTask)
+    protected TaskItem addTask(WorkerRoles workerRole, int priority, TaskStatus taskStatus, String description, boolean fileRequired)
     {
-        // mark previous task as complete
-        //if (currentTask != null) currentTask.setStatus(TaskStatus.COMPLETE,"");
+        TaskItem newTask = new TaskItem(this, workerRole, priority, taskStatus, description, fileRequired);
         
         // add the new task
         mediaItemTasks.add(newTask);
@@ -254,14 +253,16 @@ public abstract class MediaItem extends Observable
         setChanged();
         // send notification of new child to add to tree
         notifyObservers(new TaskListEvent(newTask, null, TaskListEvent.NEW));
+        
+        return newTask;
     }
     
     /**
      * Update the media items status and provide the details for the user to create the next task if required
-     * @param status The new status requested - use getValidStatusOptions to check which options are currently avaliable (based upon it current state)
+     * @param status The new status requested - use getHandledValidStatusOptions to check which options are currently avaliable (based upon it current state)
      * @param updatingUser The user requesting the status change
      * @param Description Description used for the creation of any new task in connection with the new status
-     * @param roleType The role of the individual that any new task should be allocated to - use getValidAllocateToWorkerRoles for avaliable options
+     * @param roleType The role of the individual that any new task should be allocated to - use getHandledValidAllocateToWorkerRoles for avaliable options
      * @param allocatedTo An individual that any task created by the status change will be allocated to (null if only allocated to a worker role)
      * @return confirmation if the update was successful
      */
@@ -283,7 +284,7 @@ public abstract class MediaItem extends Observable
     /**
      * Allows notification from children nodes that they status has been updated
      */
-    public void childStatusChanged()
+    protected void childStatusChanged()
     {
         throw new UnsupportedOperationException();
     }

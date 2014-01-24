@@ -139,6 +139,11 @@ public abstract class Worker
         }
     }
     
+    /**
+     * Removes a task from the workers personal task list
+     * @param project the project the task list belongs to
+     * @param task the task to be removed
+     */
     public void removeTask(Project project, TaskItem task)
     {
         // check there is a task list for this project
@@ -270,6 +275,10 @@ public abstract class Worker
             return project;
         }
         
+        /**
+         * Provides the worker TaskList for use in UI JTables
+         * @return the observable task list
+         */
         public EventList<TaskItem> getTaskList()
         {
             return observedTasks;

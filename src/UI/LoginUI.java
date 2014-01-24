@@ -29,6 +29,9 @@ public class LoginUI
     
     private int max_attempts = 3;
     
+    /**
+     * sets up the UI elements
+     */
     LoginUI() 
     {
         //<editor-fold defaultstate="collapsed" desc="Setup UI elements of the form">
@@ -78,28 +81,48 @@ public class LoginUI
         //</editor-fold>
     }
     
+    /**
+     * Provides the username entered into the form
+     * @return  Username
+     */
     public String getUsername()
     {
         return username;
     }
     
+    /**
+     * Provides the password entered into the from
+     * @return Password
+     */
     public String getPassword()
     {
         return password;
     }
     
+    /**
+     * Set the maximum number of attempts for logging in
+     * @param max_attempts number of attempts
+     */
     public void setMaxAttempts(int max_attempts)
     {
         this.max_attempts = max_attempts;
     }
 
+    /**
+     * Called to prompt the user for their username and password modally
+     * @return a Worker if username and password valid and null if not
+     */
     public Worker getIDandPassword() 
     {
+        // get reference to Worker Register
         WorkerRegister register = WorkerRegister.getInstance();
+        
+        // set up variables
         Worker worker = null;
         int attempts = 0;
         int messageType = JOptionPane.PLAIN_MESSAGE;
         
+        // loop for the maximum number of attempts permitted if the details entered are not valid
         while (attempts < max_attempts && worker == null)
         {
             if(attempts > 0) 
@@ -117,13 +140,18 @@ public class LoginUI
                                             null, ConnectOptionNames, 
                                             ConnectOptionNames[0]) != 0) 
             {
+                // return null if Cancel button pressed
                 return null;
             }
             
+            // get the Worker object if user details are valid
             worker = register.checkPassword(txtUsername.getText(), txtPassword.getText());
+            
+            // increment the number of attempts
             attempts++;
         }
         
+        // return the result
         return worker;
     }
 

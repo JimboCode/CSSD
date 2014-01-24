@@ -1,14 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package UI;
 
 import BLL.MediaItem;
 import BLL.MediaStatus;
 import BLL.Project;
 import BLL.ProjectRegister;
-import BLL.QCReport;
 import BLL.TaskItem;
 import BLL.TaskList;
 import BLL.TaskStatus;
@@ -40,7 +35,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
- *
+ * QC Team Leaders task management UI form
  * @author James Staite
  */
 public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observer
@@ -64,7 +59,7 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
     private MediaItem mediaItemStandard;
     
     // current QC Report
-    private QCReport qCReport;
+    private TaskItem task;
     
     // matcher editor for filtering the task list
     private QCTeamLeaderUI.StatusMatcherEditor matcherEditor;
@@ -125,16 +120,21 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         });
     }
     
+    /**
+     * validates new task controls
+     */
     private void validateNTask()
     {
         boolean valid = true;
         
+        // check each of the controls state
         if(!txtNTaskDescription.isEnabled() || txtNTaskDescription.getText().length() == 0) valid = false;
                 
         if (cmbNTaskAction.getSelectedItem() == null) valid = false;
         
         if (cmbNtaskWorkerRole.getSelectedItem() == null) valid = false;
         
+        // enable or disable the create task button based upon validation
         if (valid) 
         {
             btnCreateTask.setEnabled(true);
@@ -219,13 +219,13 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
                     if (taskStandard.getQCReport() != null)
                     {
                         btnViewQCReport.setEnabled(true);
-                        qCReport = taskStandard.getQCReport();
+                        task = taskStandard;
                     }
                 }
                 else
                 {
                     btnViewQCReport.setEnabled(false);
-                    qCReport = null;
+                    task = null;
                 }
                 
                 // get the premitted actions for the selected task(s)
@@ -253,7 +253,7 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
     {
         // create a new model
         DefaultComboBoxModel NewStatusComboModel = new DefaultComboBoxModel();
-        MediaStatus[] nextActions = mediaItemStandard.getValidStatusOptions(false, user);
+        MediaStatus[] nextActions = mediaItemStandard.getValidStatusOptions(user);
         for(MediaStatus action: nextActions)
         {
             NewStatusComboModel.addElement(action);
@@ -267,6 +267,9 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         loadWorkerRoles();
     }
     
+    /**
+     * Load valid worker roles for the given action
+     */
     private void loadWorkerRoles()
     {
         // create a new model
@@ -285,6 +288,9 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         loadAllocatedTo();
     }
     
+    /**
+     * Loads workers that meet the worker role selected
+     */
     private void loadAllocatedTo()
     {
         // create a new model
@@ -316,6 +322,9 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         cmbNTaskAllocateTo.setModel(workerRoleComboModel);
     }
     
+    /**
+     * Clears the existing tasks controls
+     */
     private void clearOTaskControls()
     {
         txtOTaskContentName.setText("");
@@ -325,6 +334,9 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         txtOTaskDescription.setText("");
     }
     
+    /**
+     * clears the new tasks controls
+     */
     private void clearNTaskControls()
     {
         txtNTaskDescription.setText("");
@@ -334,6 +346,10 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         cmbNTaskPriority.setSelectedIndex(0);
     }
     
+    /**
+     * Set the enabled state of the new task controls to the passed value
+     * @param value boolean enabled state
+     */
     private void setCreateTaskControlsEnabled(boolean value)
     {
         txtNTaskDescription.setEnabled(value);
@@ -425,6 +441,9 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         if (notCurrentProjects == true) projectSelected();
     }
     
+    /**
+     * Loads the MediaState filters.  Used by user to filter the viewed tasks
+     */
     private void loadFilterTaskListCombo()
     {
         // create a new model
@@ -439,6 +458,9 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         cmbFilterTaskList.setModel(comboModel);
     }
     
+    /**
+     * Handles project combo selection
+     */
     private void projectSelected()
     {
         // clear any task list selection
@@ -454,6 +476,10 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
         matcherEditor.updateList(MediaStatus.NONE);
     }
     
+    
+    /**
+     * Handles the create new task button
+     */
     private void createNewTask()
     {
         // collect new information
@@ -896,6 +922,7 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
 
     private void btnCreateTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateTaskActionPerformed
         createNewTask();
+        btnViewQCReport.setEnabled(false);
     }//GEN-LAST:event_btnCreateTaskActionPerformed
 
     private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
@@ -932,7 +959,8 @@ public class QCTeamLeaderUI extends javax.swing.JInternalFrame implements Observ
     }//GEN-LAST:event_cmbNTaskActionActionPerformed
 
     private void btnViewQCReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewQCReportActionPerformed
-        QCReportViewerUI frm = new QCReportViewerUI(qCReport);
+        task.setStatus(TaskStatus.IN_PROGRESS, "");
+        QCReportViewerUI frm = new QCReportViewerUI(task);
         frm.modal = true;
         this.getDesktopPane().add(frm);
         frm.setVisible(true);

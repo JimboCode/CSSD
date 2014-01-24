@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package UI;
 
 import BLL.Project;
@@ -23,8 +19,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
- *
- * @author James
+ * Form for QC members to create QC Reports for the media viewed - UI
+ * @author James Staite
  */
 public class QCMemberReport extends javax.swing.JInternalFrame 
 {
@@ -68,21 +64,31 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         // store task
         this.task = task;
         
+        // check if the task already has a QCReport
         if (task.getQCReport() == null) 
         {
+            // if not create a new report
             QCReport newReport = new QCReport();
+            
+            // assign to the task
             task.setQCReport(newReport);
+            
+            // set a field for use in form
             this.report = newReport;
         }
         else
         {
+            // get the existing report
             report = task.getQCReport();
         }
         
+        // deiplay task details
         displayTaskDetails();
         
+        // load the fault table with details from the QCReport
         loadFaultsTable();
         
+        // set up table listener
         tblFlauts.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             @Override
             public void valueChanged(ListSelectionEvent event) {
@@ -91,6 +97,7 @@ public class QCMemberReport extends javax.swing.JInternalFrame
             }
         });
         
+        // set up listener events for the text files
         faultDescription.addCaretListener(new CaretListener() 
         {
             @Override
@@ -110,6 +117,9 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         });
     }
     
+    /**
+     * Displays the task details
+     */
     private void displayTaskDetails()
     {
         txtProject.setText(project.getName());
@@ -119,6 +129,9 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         txtTaskDescription.setText(task.getDescription());
     }
     
+    /**
+     * Load the QCReport faults into the table
+     */
     private void loadFaultsTable()
     {
         // define properties and column labels
@@ -145,6 +158,9 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         tblFlauts.setColumnSelectionAllowed(false);
     }
     
+    /**
+     * Processes the selected row
+     */
     private void rowselection()
     {
         //check if any items are selected
@@ -169,6 +185,7 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         }
         else
         {
+            // clear controls if no row selected
             clearFaultControls();
             setFaultControlsEnabled(false);
             btnUpdate.setEnabled(false);
@@ -178,10 +195,18 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         }
     }
     
+    /**
+     * Handles the Add button
+     */
     private void Addbutton()
     {
+        // clear the fault controls
         clearFaultControls();
+        
+        // enable the fault controls
         setFaultControlsEnabled(true);
+        
+        // set the form controls state
         btnAdd.setEnabled(false);
         newUpdateFlag = newstate;
         btnCancelRemove.setText("Cancel");
@@ -189,19 +214,28 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         faultDescription.requestFocus();
     }
     
+    /**
+     * Handles the update button action
+     */
     private void updateButton()
     {
+        // check state of the form
         if (newUpdateFlag == update)
         {
+            // update the fault details
             fault.setDescription(faultDescription.getText());
             fault.setPosition(faultPosition.getText());
             fault.setSeverity(Integer.parseInt((String)cmbFaultSeveity.getSelectedItem()));
         }
         else
         {
+            // create a new fault
             report.addFault(faultDescription.getText(), faultPosition.getText(), Integer.parseInt((String)cmbFaultSeveity.getSelectedItem())); 
         }
+        // reset the form state
         newUpdateFlag = noState;
+        
+        // reset the form
         clearFaultControls();
         setFaultControlsEnabled(false);
         btnUpdate.setEnabled(false);
@@ -212,14 +246,20 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         btnAdd.requestFocus();
     }
     
+    /**
+     * Handles the cancel button
+     */
     private void cancelRemovebutton()
     {
+        // check form state
         if (newUpdateFlag == noState)
         {
+            // if not updating a fault - remove fault
             if (fault != null) report.removeFault(fault);
         }
         else
         {
+            // cancel the current action and reset the form
             clearFaultControls();
             setFaultControlsEnabled(false);
             btnUpdate.setEnabled(false);
@@ -231,20 +271,28 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         }
     }
     
+    /**
+     * Complete the QCReport and close the form
+     */
     private void submitReport()
     {
         task.setStatus(TaskStatus.COMPLETE, "Report submitted by "+ user.getName());
         closeButton();
     }
     
+    /**
+     * Validate the form entry
+     */
     private void validateFault()
     {
         boolean valid = true;
         
+        // check the description and position field
         if(!faultDescription.isEnabled() || faultDescription.getText().length() == 0) valid = false;
                 
         if(!faultPosition.isEnabled() || faultPosition.getText().length() == 0) valid = false;
         
+        // change the form state based on validity
         if (valid) 
         {
             if (newUpdateFlag == newstate) 
@@ -266,6 +314,9 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         }
     }
     
+    /**
+     * Handles the close button
+     */
     private void closeButton()
     {
         try {
@@ -275,6 +326,9 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         }  
     }
     
+    /**
+     * clear fault entry controls
+     */
     private void clearFaultControls()
     {
         faultDescription.setText("");
@@ -282,6 +336,10 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         cmbFaultSeveity.setSelectedIndex(0);
     }
     
+    /**
+     * sets the enabled state of fault entry controls
+     * @param value value
+     */
     private void setFaultControlsEnabled(boolean value)
     {
         faultDescription.setEnabled(value);

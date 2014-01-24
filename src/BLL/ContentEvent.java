@@ -2,6 +2,7 @@ package BLL;
 
 /**
  * ContentManager tree update event argument object passed with details of the event
+ * used to notify ContentTree of tree ADDs, DELETEs, UPDATE's & MOVEs
  *
  * @author James Staite
  */

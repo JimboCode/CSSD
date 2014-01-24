@@ -4,14 +4,13 @@
  */
 package UI;
 
-import java.awt.Image;
 import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 
 /**
- * About UI
+ * About Form UI
  * 
  * @author James Staite
  */

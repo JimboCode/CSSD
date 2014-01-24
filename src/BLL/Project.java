@@ -48,6 +48,7 @@ public class Project extends Observable
         this.discTitle = discTitle;
         this.client = client;
         this.region = region;
+        team.add(projectManager);
         manager = (Staff) projectManager;
         this.dueDate = dueDate;
         content = new ContentManager(this);
@@ -143,6 +144,11 @@ public class Project extends Observable
         return workersFound;
     }
     
+    /**
+     * Confirm if a worker is part of the project team
+     * @param user Worker to be checked
+     * @return boolean answer
+     */
     public boolean isWorkerOnTeam(Worker user)
     {
         // Iterate over collection of Workers
@@ -219,6 +225,10 @@ public class Project extends Observable
         return projectName;
     }
     
+    /**
+     * Provide the Content Manager for the project
+     * @return ContentManager
+     */
     public ContentManager getContentManger()
     {
         return content;

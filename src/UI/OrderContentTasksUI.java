@@ -286,36 +286,50 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
     {
         // create a new model
         DefaultComboBoxModel NewStatusComboModel = new DefaultComboBoxModel();
-        MediaStatus[] nextActions = commonSelectedNode.getValidStatusOptions(false, user);
+        
+        // get valid actions for the new task and load into the combo box
+        MediaStatus[] nextActions = commonSelectedNode.getValidStatusOptions(user);
         for(MediaStatus action: nextActions)
         {
             NewStatusComboModel.addElement(action);
             
         }
         cmbTaskNewStatus.setModel(NewStatusComboModel);
+        
+        // if only a sign option disable further selection
         if (nextActions.length == 1)
         {
             cmbTaskNewStatus.setEnabled(false);
         }
     }
     
+    /**
+     * Loads the valid worker roles for the selected status proposed for the task
+     */
     private void loadWorkerRoles()
     {
         // create a new model
         DefaultComboBoxModel workerRoleComboModel = new DefaultComboBoxModel();
         MediaStatus action = (MediaStatus) cmbTaskNewStatus.getSelectedItem();
+        
+        // get valid work roles for the new task and load into the combo box
         WorkerRoles[] workerRoles = commonSelectedNode.getValidAllocateWorkRoles(action);
         for(WorkerRoles workerRole: workerRoles)
         {
             workerRoleComboModel.addElement(workerRole);
         }
         cmbTaskWorkerRole.setModel(workerRoleComboModel);
+        
+        // if only a sign option disable further selection
         if (workerRoles.length == 1)
         {
             cmbTaskWorkerRole.setEnabled(false);
         }
     }
     
+    /**
+     * load workers that match the Work role selected
+     */
     private void loadAllocatedTo()
     {
         // create a new model
@@ -327,6 +341,7 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
         {
             case CONTRACTOR:
             {
+                // get a list of contractors
                 WorkerRegister workReg = WorkerRegister.getInstance();
                 allocateToList.addAll(workReg.findByRole(WorkerRoles.CONTRACTOR, WorkerType.CONTRACTOR));
                 break;
@@ -342,9 +357,13 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
                 // Team members
                 // Add a blank option for if not allocated to any idividual
                 allocateToList.add(null);
+                
+                // add to the list worker that match the work role
                 allocateToList.addAll(selectedProject.findWorkersByRole(workerRole));
             }
         }
+        
+        // load into the combo box
         for(Worker worker: allocateToList)
         {
             workerRoleComboModel.addElement(worker);
@@ -352,6 +371,10 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
         cmbTaskAllocatedTo.setModel(workerRoleComboModel);
     }
     
+    /**
+     * Enable and disable the form controls
+     * @param value boolean value
+     */
     private void setControlsEnabled(boolean value)
     {
         txtTaskDescription.setEnabled(value);
@@ -361,6 +384,9 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
         cmbPriority.setEnabled(value);
     }
     
+    /**
+     * Reset / clear the form controls
+     */
     private void clearControls()
     {
         txtTaskDescription.setText("");
@@ -369,7 +395,10 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
         cmbTaskAllocatedTo.setModel(new DefaultComboBoxModel());
         cmbPriority.setSelectedIndex(0);
     }
-    
+   
+    /**
+     * Handle the create button clicks
+     */
     private void btnCreateTask()
     {
         // collect new information
@@ -379,7 +408,7 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
         Worker allocatedTo = (Worker) cmbTaskAllocatedTo.getSelectedItem();
         int priority = Integer.parseInt((String)cmbPriority.getSelectedItem());
         
-        // update the selected nodes status with collected information
+        // update all the selected nodes status with collected information
         for(MediaItem item: selectedNodes)
         {
             item.setStatus(newstatus, user, taskDescription, workerRole, allocatedTo, priority);
@@ -387,7 +416,7 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
                 
         // Clear selection 
         contentTree.clearSelection();
-        // disable the controls
+        // disable & clear the controls
         setControlsEnabled(false);
         clearControls();
     }

@@ -52,7 +52,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
     // current state of the form
     private int status = NOTSET;
     
-    // Anonymous listner for tree selection
+    // Anonymous listener for tree selection
     private TreeSelectionListener nodeselection = new TreeSelectionListener(){
         @Override
         public void valueChanged(TreeSelectionEvent e) {
@@ -158,6 +158,7 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         cmbMediaSource.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // check state of form is either creating or updating
                 if (status == CREATING || status == UPDATING) validiateNodeEntry();
             }
         });
@@ -306,6 +307,9 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         cmbMediaType.setModel(nodeTypeComboModel);
     }
     
+    /**
+     * Loads avaliable media sources into combo box
+     */
     private void loadMediaSourceCombo()
     {
         // create a new model
@@ -320,7 +324,9 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         cmbMediaSource.setSelectedItem(null);
     }
     
-    // updates the forms controls based upon the project in the project combo box
+    /**
+     * updates the forms controls based upon the project in the project combo box
+     */
     private void updatecontrols()
     {
         // get project
@@ -451,6 +457,9 @@ public class DefineContentUI extends javax.swing.JInternalFrame implements Obser
         }
     }
     
+    /**
+     * Adds and removes valid option to the Node Type combo box
+     */
     private void cmbNodeTypeChanged()
     {
         if (cmbNodeType.getSelectedItem() == NodeType.ELEMENT)

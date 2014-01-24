@@ -157,6 +157,10 @@ public class CreateClientUI extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Handles the create button to make a client record
+     * @param evt event arguments of the button click
+     */
     private void btnCreateRecordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateRecordActionPerformed
         // check that at minimum the clients name has been entered
         if(txtClientName.getText().length() > 0)

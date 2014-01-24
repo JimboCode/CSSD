@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package UI;
 
 import BLL.MediaItem;
@@ -34,8 +30,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
- *
- * @author James
+ * Allows QC and Authors to view avaliable tasks; allocate task to themselves and 
+ * open tasks to work on them
+ * @author James Staite
  */
 public class QCAuthorTasksUI extends javax.swing.JInternalFrame implements Observer
 {
@@ -88,10 +85,12 @@ public class QCAuthorTasksUI extends javax.swing.JInternalFrame implements Obser
         // register for project update events
         registerEvents();
         
+        // register listener for both tables
         tblAvaliableTasks.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             @Override
             public void valueChanged(ListSelectionEvent event) {
                 // possible row selection
+                // flag set to true when updating selected tasks and prevents table updates
                 if (updatingFlag == false)
                 {
                     if (!event.getValueIsAdjusting())
@@ -111,6 +110,7 @@ public class QCAuthorTasksUI extends javax.swing.JInternalFrame implements Obser
             @Override
             public void valueChanged(ListSelectionEvent event) {
                 // possible row selection
+                 // flag set to true when updating selected tasks and prevents table updates
                 if (updatingFlag == false)
                 {
                     if (!event.getValueIsAdjusting())
@@ -150,6 +150,9 @@ public class QCAuthorTasksUI extends javax.swing.JInternalFrame implements Obser
         if (notCurrentProjects == true) projectSelected();
     }
     
+    /**
+     * Handles project combo box selection
+     */
     private void projectSelected()
     {
         // clear any task list selections
@@ -232,6 +235,9 @@ public class QCAuthorTasksUI extends javax.swing.JInternalFrame implements Obser
         }
     }
     
+    /**
+     * Clears all the task controls
+     */
     private void clearTaskControls()
     {
         // clear form controls
@@ -243,7 +249,10 @@ public class QCAuthorTasksUI extends javax.swing.JInternalFrame implements Obser
         btnOpenTask.setEnabled(false);
         btnAllocateTask.setEnabled(false);
     }
-    
+   
+    /**
+     * Handles the updating of tasks items selected
+     */
     private void allocateSelectedTasks()
     {
         // flag to prevent table updates and prevent changes to selectedTasks until the update has
@@ -265,6 +274,9 @@ public class QCAuthorTasksUI extends javax.swing.JInternalFrame implements Obser
         clearTaskControls();
     }
     
+    /**
+     * Handles the open task button to start a task
+     */
     private void startTask()
     {
         TaskItem task = selectedTasks.get(0);
@@ -364,6 +376,11 @@ public class QCAuthorTasksUI extends javax.swing.JInternalFrame implements Obser
         tblAllocatedTasks.setColumnSelectionAllowed(false);
     }
     
+    /**
+     * formats the preferred column width for a table passed in
+     * @param table JTable to format
+     * @param columnSizes Array of integer column widths
+     */
     private void setColumnWidths(JTable table, int columnSizes[])
     {
         int col = 0;

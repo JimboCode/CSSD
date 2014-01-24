@@ -133,7 +133,6 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
     {
         // check that there is at least one project defined
         ProjectRegister proReg = ProjectRegister.getInstance();
-        // TODO dialog box not projects defined
         
         // load avaliable projects
         loadProjectCombo();
@@ -577,7 +576,10 @@ public class DefineTeamUI extends javax.swing.JInternalFrame implements Observer
         // wrapped in WorkerWrapper, so that they display their number of tasks
         for(Worker worker: project.getWorkers())
         {
-            currentTeam.add(new WorkerWrapper(project, worker));
+            if (worker.getRole() != WorkerRoles.QC_TEAM_LEADER && worker.getRole() != WorkerRoles.PROJECT_MANAGER) 
+            {
+                currentTeam.add(new WorkerWrapper(project, worker));
+            }
         }
         
         // set the text on the update button

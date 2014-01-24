@@ -1,7 +1,5 @@
 package BLL;
 
-import java.util.ArrayList;
-
 /**
  * Freelancer is a type of worker used
  * @author James Staite
@@ -13,8 +11,8 @@ public class Freelancer extends Worker
     private String lastName;
     
     /**
-     * Setup Freelancer
-     * @param roles Arraylist of valid roles
+     * Setups Freelancer
+     * @param roles Work role of the freelancer
      * @param name Individuals name
      * @param userName Individuals username for authentication
      * @param password Individuals password for authentication

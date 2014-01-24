@@ -5,6 +5,7 @@ import BLL.ClientRegister;
 import BLL.ComponentType;
 import BLL.ContentManager;
 import BLL.MediaItem;
+import BLL.MediaSource;
 import BLL.NodeType;
 import BLL.Project;
 import BLL.ProjectRegister;
@@ -119,10 +120,13 @@ public class Main {
         MediaItem root = contentManager.getTree();
                 
         MediaItem Menus = contentManager.addItem("Disc Menus", "Menus System", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, root);
-        MediaItem Asset1 = contentManager.addItem("Menu sequence", "Menu art work", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
-        Asset1 = contentManager.addItem("Menu backing track", "Backing track to menu system", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
-        Asset1 = contentManager.addItem("Menu logic", "Java for menu system", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
-        Asset1 = contentManager.addItem("Menu Subtitles", "Subtitles for menus", ComponentType.SUBTITLES, NodeType.ASSET, Menus);
+        MediaItem Asset1 = contentManager.addItem("Menu sequence", "Menu art work", ComponentType.VIDEO, NodeType.ASSET, Menus);
+        Asset1 = contentManager.addItem("Menu backing track", "Backing track to menu system", ComponentType.AUDIO, NodeType.ASSET, Menus);
+        Asset1 = contentManager.addItem("Menu logic", "Java for menu system", ComponentType.JAVA, NodeType.ASSET, Menus);
+        Asset1 = contentManager.addItem("Menu Subtitles", "Subtitles for menus", ComponentType.TEXTFILE, NodeType.ASSET, Menus);
+        
+        MediaItem temp = contentManager.addItem("Temp", "Temp", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, Menus);
+        Asset1 = contentManager.addItem("Menu Subtitles", "Subtitles for menus", ComponentType.TEXTFILE, NodeType.ASSET, temp);
         
         MediaItem episodeContent = contentManager.addItem("Episode Content", "Content for episodes", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, root);
         
@@ -136,13 +140,17 @@ public class Main {
         Asset1 = contentManager.addItem("Freature video", "Video content", ComponentType.VIDEO, NodeType.ASSET, Chapter1);
         Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, Chapter1);
         Asset1 = contentManager.addItem("French Subtitles", "French Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter1);
+         Asset1.setMediaSource(MediaSource.IN_HOUSE);
         Asset1 = contentManager.addItem("German Subtitles", "German Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter1);
+         Asset1.setMediaSource(MediaSource.IN_HOUSE);
         
         MediaItem Chapter2 = contentManager.addItem("Chapter 2", "Chapter 2 of Episode 1", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episode1);
         Asset1 = contentManager.addItem("Freature video", "Video content", ComponentType.VIDEO, NodeType.ASSET, Chapter2);
         Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, Chapter2);
         Asset1 = contentManager.addItem("French Subtitles", "French Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter2);
+        Asset1.setMediaSource(MediaSource.IN_HOUSE);
         Asset1 = contentManager.addItem("German Subtitles", "German Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter2);
+         Asset1.setMediaSource(MediaSource.IN_HOUSE);
         
         MediaItem episode2 = contentManager.addItem("Episode 2", "Episode 2", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episodeContent);
         
@@ -154,12 +162,16 @@ public class Main {
         Asset1 = contentManager.addItem("Freature video", "Video content", ComponentType.VIDEO, NodeType.ASSET, Chapter1);
         Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, Chapter1);
         Asset1 = contentManager.addItem("French Subtitles", "French Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter1);
+        Asset1.setMediaSource(MediaSource.IN_HOUSE);
         Asset1 = contentManager.addItem("German Subtitles", "German Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter1);
+        Asset1.setMediaSource(MediaSource.IN_HOUSE);
         
         Chapter2 = contentManager.addItem("Chapter 2", "Chapter 2 of Episode 2", ComponentType.COMPRESSED_ELEMENT, NodeType.ELEMENT, episode2);
         Asset1 = contentManager.addItem("Freature video", "Video content", ComponentType.VIDEO, NodeType.ASSET, Chapter2);
         Asset1 = contentManager.addItem("Audio", "English audio track", ComponentType.AUDIO, NodeType.ASSET, Chapter2);
         Asset1 = contentManager.addItem("French Subtitles", "French Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter2);
+        Asset1.setMediaSource(MediaSource.IN_HOUSE);
         Asset1 = contentManager.addItem("German Subtitles", "German Translation", ComponentType.SUBTITLES, NodeType.ASSET, Chapter2); 
+        Asset1.setMediaSource(MediaSource.IN_HOUSE);
     }
 }

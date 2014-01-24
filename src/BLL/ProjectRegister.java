@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Observable;
 
 /**
- *
+ *  A singleton register for all projects
+ * 
  * @author James Staite
  * @version 1.0.1
  */
@@ -167,8 +168,15 @@ public class ProjectRegister extends Observable
         return projectReg.size();
     }
     
+    /**
+     * Confirms if a user can view a project
+     * @param project the project to check
+     * @param user the user to check
+     * @return boolean answer
+     */
     private boolean validUser(Project project, Worker user)
     {
+        // Project managers can view all projects
         if (user.getRole() == WorkerRoles.PROJECT_MANAGER ||
                         project.isWorkerOnTeam(user) ||
                         project.getClient() == user)
@@ -181,6 +189,11 @@ public class ProjectRegister extends Observable
         }
     }
     
+    /**
+     * Check if the project name already exists
+     * @param name the name to check
+     * @return a boolean answer
+     */
     private Project validProjectName(String name)
     {
         // iterate over collection to find matching records

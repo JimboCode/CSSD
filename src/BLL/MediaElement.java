@@ -107,6 +107,9 @@ public class MediaElement extends MediaItem
         }
     }
     
+    /**
+     * Used by parent node when an child is being deleted in order to clean up
+     */
     @Override
     protected void beingRemovedCleanUp()
     {
@@ -155,18 +158,67 @@ public class MediaElement extends MediaItem
         return Collections.unmodifiableList(mediaChildren);
     }
     
+    /**
+     * Used by the UI layer to confirm that the current task has been completed
+     * 
+     * @param comments any comments to added to the next task that will be created by the completion
+     * of this task
+     */
     @Override
-    public void currentTaskCompleted(String comment)
+    public void currentTaskCompleted(String comments)
     {
+        // check if the completion of the current task requires a file
+        // if so call the addfile method that handles these operations
+        if (currentTask.isFileRequired())
+        {
+            addFile(currentTask.getFilename(), comments);
+        }
         
+        // Alternatively if the operation is the submission of a QC Report
+        else if (currentTask.getQCReport()!= null &&
+                status == MediaStatus.INWARD_QC ||
+                status == MediaStatus.AWAITING_QC)
+        {
+            // add QC Report to the current file
+            currentFile.setQCReport(currentTask.getQCReport());
+            
+            // update the status
+            this.status = MediaStatus.QC_REPORT_AVALIABLE;
+            
+             // create message for the next task
+            String description = "QC Report avaliable";
+            if (!comments.isEmpty()) description += " (Comment : " + comments + " )";  
+            
+            // get QC Report to add to the new task 
+            QCReport report = currentTask.getQCReport();
+            
+            // create a new task 
+            TaskItem task = addTask(WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false);
+            
+            // add QC Report
+            task.setQCReport(report);
+            
+            // notify update
+            raiseUpdateEvent();
+        }
     }
     
+    /**
+     * Use to update the status and create a new task if required
+     * 
+     * @param status the new status - this is validated against the WorkFlow object (valid options can be obtained from getValidStatusOptions(Worker worker))
+     * @param updatingUser the Worker object of the user wishing to make the change - not all users can carry out all operations
+     * @param description the description to be including in the new task associated with this new status
+     * @param roleType the worker role types that are required to carry out the operations of the new task
+     * @param allocatedTo a specific worker if this task is allocated to them
+     * @param priority the priority of the new task
+     * @return confirmation if the status change has happened
+     */
     @Override
-    public boolean setStatus(MediaStatus status, Worker updatingUser, String Description, WorkerRoles roleType, Worker allocatedTo, int priority)
+    public boolean setStatus(MediaStatus status, Worker updatingUser, String description, WorkerRoles roleType, Worker allocatedTo, int priority)
     {
         if (status == MediaStatus.SCRUBBED_FROM_DISC)
         {
-            // TODO check that a task is not in progress & clear all task assoicated with it
             this.status = status;
             // notify update
             raiseUpdateEvent();
@@ -175,7 +227,7 @@ public class MediaElement extends MediaItem
             parent.childStatusChanged();
         }
         
-        MediaStatus[] validChanges = getValidStatusOptions(false, updatingUser);
+        MediaStatus[] validChanges = getValidStatusOptions(updatingUser);
         if (validChanges.length == 0) return false;
         for(MediaStatus thisStatus: validChanges)
         {
@@ -202,17 +254,29 @@ public class MediaElement extends MediaItem
                         case ASSET_READY:
                         {
                             currentFile.setStatus(FileStatus.ACCEPTED);
+                            
+                            // update the status for parent benefit
+                            this.status = thisStatus;
                             parent.childStatusChanged();
                             break;
                         }    
                     }
 
-                    // update the status
+                     // update the status
                     this.status = thisStatus;
+
+                    // set if task will require a file
+                    boolean fileRequired = getFileRequiredWithStatus(thisStatus);
+
+                    // create a new task
+                    TaskItem task = addTask(roleType, priority, TaskStatus.AWAITING_ACTION, description, fileRequired);
+
+                    // if allocated to an individual set the assignment
+                    if (allocatedTo != null) task.setWorker(allocatedTo);
 
                     // notify update
                     raiseUpdateEvent();
-        
+
                     // confirm the update
                     return true;
                 }
@@ -253,6 +317,10 @@ public class MediaElement extends MediaItem
         }      
     }
     
+    /**
+     * Confirms the mediaItem can be deleted
+     * @return boolean answer
+     */
     @Override
     public boolean canBeDeleted()
     {
@@ -276,11 +344,13 @@ public class MediaElement extends MediaItem
     }
     
     /**
-     * Allows notification from children nodes that they status has been updated
+     * handles notification from children nodes that they status has been updated
      */
     @Override
-    public void childStatusChanged()
+    protected void childStatusChanged()
     {
+        // if no child are attached set the status to AWAITING_ASSETS to avoid child being
+        // deleted and updating the status to Ready artificially
         if (mediaChildren.isEmpty())
         {
             if(status != MediaStatus.SCRUBBED_FROM_DISC) status = MediaStatus.AWAITING_ASSETS;
@@ -298,7 +368,7 @@ public class MediaElement extends MediaItem
                 }
             }
 
-            // if all child objects are ready of scrubbed update own status
+            // if all child objects are ready or scrubbed update own status
             if(readyFlag == true)
             {
                 status = MediaStatus.ALL_ASSETS_AVALIABLE;
@@ -309,21 +379,25 @@ public class MediaElement extends MediaItem
                 // if this object has a parent then notify it
                 if (parent != null) parent.childStatusChanged();
             }
-        }
-           
-            
+        }            
     }
     
     /**
+     * Set the source of the media e.g. client, contractor, etc.
+     * Can only be set before any task to create media are created
      * 
-     * @param mediaSource
-     * @return 
+     * @param mediaSource a media source
+     * @return confirms if updated
      */
     @Override
     public boolean setMediaSource(MediaSource mediaSource) {
         throw new UnsupportedOperationException();
     }
     
+    /**
+     * Confirms if the media source can still be changed
+     * @return boolean answer
+     */
     @Override
     public boolean canMediaSourceBeChanged()
     {

@@ -37,6 +37,10 @@ public enum ComponentType
         return value.trim();
     }
     
+    /**
+     * provide the file extensions associated with the component type
+     * @return string with the valid wildcard file types
+     */
     public String fileExtensions()
     {
         switch(this)
