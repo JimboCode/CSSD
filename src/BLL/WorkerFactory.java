@@ -10,7 +10,7 @@ public class WorkerFactory
 {
     /**
      * Factory Method for the creation of worker classes
-     * @param roles the work roles that the class carries out - see WorkerRoles Enum
+     * @param role the work role that the class carries out - see WorkerRoles Enum
      * @param name Name of worker
      * @param userName Login username
      * @param password Login password

@@ -42,7 +42,6 @@ public class Client extends Worker
     
     /**
      * displays the client name when the object is used
-     * @return 
      */
     @Override
     public String toString()

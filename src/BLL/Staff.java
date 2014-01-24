@@ -13,7 +13,7 @@ public class Staff extends Worker
     
     /**
      * Creates new Staff member
-     * @param roles Roles that the staff member carries out
+     * @param role Role that the staff member carries out
      * @param name Name of the staff member
      * @param userName System username for the staff member
      * @param password System Password for the staff member

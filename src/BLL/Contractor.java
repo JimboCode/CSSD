@@ -12,7 +12,7 @@ public class Contractor extends Worker
    
     /**
      * Setup Contractor
-     * @param roles Arraylist of valid roles
+     * @param role valid role
      * @param name Name
      * @param userName username for authentication
      * @param password password for authentication

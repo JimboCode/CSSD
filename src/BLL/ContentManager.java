@@ -39,7 +39,7 @@ public class ContentManager extends Observable implements Observer
     /**
      * Adds a new MediaItem to the tree
      * @param name Short name of the MediaItem to be displayed in the Tree and TaskLists
-     * @param Description Longer description of the item
+     * @param description Longer description of the item
      * @param type The component type to be created by the completion of this portion of the tree e.g. video, audio etc.
      * @param nodeType Type of node to be created e.g. Element or Asset
      * @param parent The parent node that this is to be attached to

@@ -225,9 +225,6 @@ public class MediaAsset extends MediaItem
                 status == MediaStatus.INWARD_QC ||
                 status == MediaStatus.AWAITING_QC)
         {
-            // add QC Report to the current file
-            currentFile.setQCReport(currentTask.getQCReport());
-            
             // update the status
             this.status = MediaStatus.QC_REPORT_AVALIABLE;
             
@@ -247,6 +244,16 @@ public class MediaAsset extends MediaItem
             // notify update
             raiseUpdateEvent();
         }
+    }
+    
+    /**
+     * Returns the current file name
+     * @return filename including path
+     */
+    @Override
+    public File getFile()
+    {
+        return currentFile;
     }
     
     /**

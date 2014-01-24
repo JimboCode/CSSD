@@ -7,8 +7,11 @@ import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.swing.EventJXTableModel;
 import java.beans.PropertyVetoException;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -27,6 +30,9 @@ public class QCReportViewerUI extends ModalBase
     // forms current fault
     Fault fault;
     
+    // forms current task
+    TaskItem task;
+    
     /**
      * Creates new form QCReportViewerUI
      */
@@ -34,6 +40,9 @@ public class QCReportViewerUI extends ModalBase
     {
         super("Quality Control Report",false,true,false,false);
         initComponents();
+        
+        // Store task
+        this.task = task;
         
         // store report
         report = task.getQCReport();
@@ -53,6 +62,12 @@ public class QCReportViewerUI extends ModalBase
             }
         });
         
+        // display associcated file
+        String path = report.getFilename();
+        int index = path.lastIndexOf("\\");
+        String fileName = path.substring(index + 1);
+        txtFilename.setText(fileName);
+        
         // set up the text field validation listener if the report has not yet been moderated
         if (report.isReportmoderated() == false)
         {
@@ -64,6 +79,8 @@ public class QCReportViewerUI extends ModalBase
                     validateForm();
                 }
             }); 
+           
+            btnOpenFile.setEnabled(true);
         }
     }
     
@@ -229,6 +246,27 @@ public class QCReportViewerUI extends ModalBase
         }  
     }
     
+    /**
+     * Copies the associated media file to a location specified by the user
+     */
+    private void openFile()
+    {
+        File file = new File(report.getFilename());
+        String path = report.getFilename();
+        int index = path.lastIndexOf(".");
+        String fileExt = path.substring(index);
+        JFileChooser chooser = new JFileChooser();
+        chooser.resetChoosableFileFilters();
+        int retrival = chooser.showSaveDialog(this);
+        if (retrival == JFileChooser.APPROVE_OPTION) 
+        {
+            try 
+            {
+                File target = new File(chooser.getSelectedFile().toString() + fileExt);
+                Files.copy(file.toPath(),target.toPath());
+            } catch (Exception ex){}
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -260,8 +298,8 @@ public class QCReportViewerUI extends ModalBase
         jLabel7 = new javax.swing.JLabel();
         cmbLeaderSeveity = new javax.swing.JComboBox();
         jLabel8 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        txtFilename = new javax.swing.JTextField();
+        btnOpenFile = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
         btnClose = new javax.swing.JButton();
         btnFinialise = new javax.swing.JButton();
@@ -326,18 +364,18 @@ public class QCReportViewerUI extends ModalBase
 
         cmbLeaderSeveity.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
         cmbLeaderSeveity.setEnabled(false);
-        cmbLeaderSeveity.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmbLeaderSeveityActionPerformed(evt);
-            }
-        });
 
         jLabel8.setText("File");
 
-        jTextField2.setEnabled(false);
+        txtFilename.setEnabled(false);
 
-        jButton1.setText("Open File");
-        jButton1.setEnabled(false);
+        btnOpenFile.setText("Open File");
+        btnOpenFile.setEnabled(false);
+        btnOpenFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOpenFileActionPerformed(evt);
+            }
+        });
 
         btnCancel.setText("Cancel");
         btnCancel.setEnabled(false);
@@ -358,9 +396,9 @@ public class QCReportViewerUI extends ModalBase
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField2)
+                        .addComponent(txtFilename)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton1)))
+                        .addComponent(btnOpenFile)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -404,9 +442,9 @@ public class QCReportViewerUI extends ModalBase
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtFilename, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel8)
-                            .addComponent(jButton1)))
+                            .addComponent(btnOpenFile)))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -470,7 +508,7 @@ public class QCReportViewerUI extends ModalBase
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnClose)
                     .addComponent(btnFinialise))
@@ -497,20 +535,20 @@ public class QCReportViewerUI extends ModalBase
         closeButton();
     }//GEN-LAST:event_btnFinialiseActionPerformed
 
-    private void cmbLeaderSeveityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbLeaderSeveityActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cmbLeaderSeveityActionPerformed
+    private void btnOpenFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenFileActionPerformed
+        openFile();
+    }//GEN-LAST:event_btnOpenFileActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnClose;
     private javax.swing.JButton btnFinialise;
+    private javax.swing.JButton btnOpenFile;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JComboBox cmbFaultSeveity;
     private javax.swing.JComboBox cmbLeaderSeveity;
     private javax.swing.JTextArea faultDescription;
     private javax.swing.JTextField faultPosition;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -525,8 +563,8 @@ public class QCReportViewerUI extends ModalBase
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTable tblFlauts;
+    private javax.swing.JTextField txtFilename;
     private javax.swing.JTextArea txtLeaderComments;
     // End of variables declaration//GEN-END:variables
 }

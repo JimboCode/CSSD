@@ -139,7 +139,7 @@ public class TaskList implements Observer
     /**
      * Provides a reference to the observable master task list for the project for use in
      * UI JTables
-     * @return 
+     * @return A GlazedLists observable eventlist
      */
     public EventList<TaskItem> getTaskList()
     {

@@ -17,6 +17,18 @@ public class QCReport
     // if the report has been moderated
     private boolean reportmoderated = false;
     
+    // file used in this report
+    private File file;
+    
+    /**
+     * Creates the report and store details of the file it is about
+     * @param file 
+     */
+    public QCReport(File file)
+    {
+        this.file = file;
+    }
+    
     /**
      * provides the EventList for use in the UI Jtables
      * @return EventList<Fault>
@@ -64,6 +76,15 @@ public class QCReport
      */
     public void setReportmoderated(boolean reportmoderated) {
         this.reportmoderated = reportmoderated;
+    }
+    
+    /**
+     * get the filename of the file the report is about
+     * @return provides the filename for associated file
+     */
+    public String getFilename()
+    {
+        return file.getName();
     }
     
     /**

@@ -10,8 +10,11 @@ import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.swing.EventJXTableModel;
 import java.beans.PropertyVetoException;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -68,7 +71,7 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         if (task.getQCReport() == null) 
         {
             // if not create a new report
-            QCReport newReport = new QCReport();
+            QCReport newReport = new QCReport(task.getMediaItem().getFile());
             
             // assign to the task
             task.setQCReport(newReport);
@@ -82,7 +85,7 @@ public class QCMemberReport extends javax.swing.JInternalFrame
             report = task.getQCReport();
         }
         
-        // deiplay task details
+        // display task details
         displayTaskDetails();
         
         // load the fault table with details from the QCReport
@@ -127,6 +130,34 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         txtTaskContentDescription.setText(task.getMediaItem().getDescription());
         txtTaskMediaRequired.setText(task.getMediaDescription());
         txtTaskDescription.setText(task.getDescription());
+        String path = report.getFilename();
+        int index = path.lastIndexOf("\\");
+        String fileName = path.substring(index + 1);
+        txtTaskFilename.setText(fileName);
+        btnOpenFile.setEnabled(true);
+    }
+    
+    /**
+     * Copies the associated media file to a location specified by the user
+     */
+    private void openFile()
+    {
+        File file = new File(report.getFilename());
+        String path = report.getFilename();
+        int index = path.lastIndexOf(".");
+        String fileExt = path.substring(index);
+        JFileChooser chooser = new JFileChooser();
+        chooser.resetChoosableFileFilters();
+        int retrival = chooser.showSaveDialog(this);
+        if (retrival == JFileChooser.APPROVE_OPTION) 
+        {
+            try 
+            {
+                File target = new File(chooser.getSelectedFile().toString() + fileExt);
+                Files.copy(file.toPath(),target.toPath());
+            } catch (Exception ex) {
+            }
+        }
     }
     
     /**
@@ -372,8 +403,8 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         lblProject = new javax.swing.JLabel();
         txtProject = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        txtTaskFilename = new javax.swing.JTextField();
+        btnOpenFile = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblFlauts = new javax.swing.JTable();
@@ -429,10 +460,15 @@ public class QCMemberReport extends javax.swing.JInternalFrame
 
         jLabel2.setText("File");
 
-        jTextField1.setEnabled(false);
+        txtTaskFilename.setEnabled(false);
 
-        jButton1.setText("Open File");
-        jButton1.setEnabled(false);
+        btnOpenFile.setText("Open File");
+        btnOpenFile.setEnabled(false);
+        btnOpenFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOpenFileActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout lblContentNameLayout = new javax.swing.GroupLayout(lblContentName);
         lblContentName.setLayout(lblContentNameLayout);
@@ -455,9 +491,9 @@ public class QCMemberReport extends javax.swing.JInternalFrame
                     .addComponent(jScrollPane4)
                     .addComponent(txtProject)
                     .addGroup(lblContentNameLayout.createSequentialGroup()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtTaskFilename, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1)))
+                        .addComponent(btnOpenFile)))
                 .addContainerGap())
         );
         lblContentNameLayout.setVerticalGroup(
@@ -485,9 +521,9 @@ public class QCMemberReport extends javax.swing.JInternalFrame
                     .addComponent(lblOTaskDescription))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(lblContentNameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtTaskFilename, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(jButton1))
+                    .addComponent(btnOpenFile))
                 .addGap(17, 17, 17))
         );
 
@@ -654,7 +690,7 @@ public class QCMemberReport extends javax.swing.JInternalFrame
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSubmit)
                     .addComponent(btnClose))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(35, Short.MAX_VALUE))
         );
 
         pack();
@@ -684,16 +720,20 @@ public class QCMemberReport extends javax.swing.JInternalFrame
         validateFault();
     }//GEN-LAST:event_cmbFaultSeveityActionPerformed
 
+    private void btnOpenFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenFileActionPerformed
+        openFile();
+    }//GEN-LAST:event_btnOpenFileActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnCancelRemove;
     private javax.swing.JButton btnClose;
+    private javax.swing.JButton btnOpenFile;
     private javax.swing.JButton btnSubmit;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JComboBox cmbFaultSeveity;
     private javax.swing.JTextArea faultDescription;
     private javax.swing.JTextField faultPosition;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -707,7 +747,6 @@ public class QCMemberReport extends javax.swing.JInternalFrame
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lblContentDescription;
     private javax.swing.JPanel lblContentName;
     private javax.swing.JLabel lblMediaRequired;
@@ -718,6 +757,7 @@ public class QCMemberReport extends javax.swing.JInternalFrame
     private javax.swing.JTextArea txtTaskContentDescription;
     private javax.swing.JTextField txtTaskContentName;
     private javax.swing.JTextArea txtTaskDescription;
+    private javax.swing.JTextField txtTaskFilename;
     private javax.swing.JTextField txtTaskMediaRequired;
     // End of variables declaration//GEN-END:variables
 }

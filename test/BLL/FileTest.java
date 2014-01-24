@@ -108,35 +108,4 @@ public class FileTest {
         assertEquals(expResult, result);
     }
 
-    /**
-     * Test of setQCReport method, of class File.
-     */
-    @Test
-    public void testSetQCReport() {
-        System.out.println("setQCReport");
-        String name = "Filename";
-        FileStatus status = FileStatus.NEW_NOT_QC_CHECKED;
-        int version = 10;
-        File instance = new File(name, status, version);
-        QCReport report = new QCReport();
-        instance.setQCReport(report);
-        QCReport expResult = instance.getQCReport();
-        assertEquals(expResult, report);
-    }
-
-    /**
-     * Test of getQCReport method, of class File.
-     */
-    @Test
-    public void testGetQCReport() {
-        System.out.println("getQCReport");
-        String name = "Filename";
-        FileStatus status = FileStatus.NEW_NOT_QC_CHECKED;
-        int version = 10;
-        File instance = new File(name, status, version);
-        QCReport report = new QCReport();
-        instance.setQCReport(report);
-        QCReport expResult = instance.getQCReport();
-        assertEquals(expResult, report);
-    }
 }

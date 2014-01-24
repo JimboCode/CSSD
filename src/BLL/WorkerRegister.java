@@ -37,8 +37,12 @@ public class WorkerRegister
      * N.B. will not replace an instance of a worker object with the same username
      * remove the instance and then add it to re-use the username.
      * 
-     * @param worker object to be added to register
-     * @return Confirmation that the object has been added
+     * @param role The work role of the new worker
+     * @param name The name of the worker
+     * @param userName The user name for the worker to login
+     * @param password The password for the worker
+     * @param type The type of worker (valid values are as WorkerType enumeration)
+     * @return The new Worker class if created or null if not
      */
     public Worker addWorker(WorkerRoles role, String[] name, String userName, String password, WorkerType type)
     {

@@ -229,8 +229,9 @@ public class ContentTree extends JTree implements Observer
     }
     
     /**
-     * The BLL tree node to be removed
-     * @param item The MediaItem to be removed
+     * Move a the child node and any of it children to the new parent node
+     * @param newTreeParent The parent node to receive the child node as a child
+     * @param treeChild The child node to be move to the new parent
      */
     public void moveItem(DefaultMutableTreeNode newTreeParent, DefaultMutableTreeNode treeChild)
     {

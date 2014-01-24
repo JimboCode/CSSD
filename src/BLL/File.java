@@ -4,7 +4,7 @@ package BLL;
  * Store the file location and maintains a version where changed
  * @author James Staite
  */
-class File
+public class File
 {
     // filename including path
     private String name;
@@ -62,23 +62,5 @@ class File
      */
     public int getVersion() {
         return version;
-    }
-
-    /**
-     * Set the QC report associated with this file
-     * @param report The report object to be associated
-     */
-    public void setQCReport(QCReport report)
-    {
-        this.report = report;
-    }
-
-    /**
-     * Provides the the QC Report associated with this file if there is one
-     * @return Null or a QC Report
-     */
-    public QCReport getQCReport()
-    {
-        return report;
     }
 }    

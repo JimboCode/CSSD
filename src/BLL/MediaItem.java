@@ -101,7 +101,7 @@ public abstract class MediaItem extends Observable
     
     /**
      * Returns a list of the children for this object
-     * @return 
+     * @return list of child objects
      */
     public abstract List<MediaItem> getChildren();
     
@@ -149,7 +149,7 @@ public abstract class MediaItem extends Observable
     
     /**
      * Used to display the name of the object in Trees
-     * @return 
+     * @return name of the mediaitem
      */
     @Override
     public String toString()
@@ -158,6 +158,7 @@ public abstract class MediaItem extends Observable
     }
 
     /**
+     * Provide the source to the media
      * @return the mediaSource
      */
     public MediaSource getMediaSource() {
@@ -165,27 +166,29 @@ public abstract class MediaItem extends Observable
     }
     
     /**
-     * 
-     * @return 
+     * Confirms if the media source can be updated; prevented after task have been generated
+     * @return boolean answer
      */
     public abstract boolean canMediaSourceBeChanged();
 
     /**
-     * 
-     * @param mediaSource
-     * @return 
+     * Set the media source for the MediaItem e.g. client, contractor, in house see MediaSource for Enumerations
+     * @param mediaSource enumerated value to be set
+     * @return boolean confirmation of whether the value has been applied
      */
     public abstract boolean setMediaSource(MediaSource mediaSource);
 
     /**
-     * @return the mediaType
+     * Get the media file type of the MediaItem e.g. Video, Audio, etc. see ComponentType for valid enumeration values
+     * @return ComponentType enumeration value
      */
     public ComponentType getMediaType() {
         return mediaType;
     }
 
     /**
-     * @param mediaType the mediaType to set
+     * Sets the media file type of the MediaItem e.g. Video, Audio, etc. see ComponentType for valid enumeration values
+     * @param mediaType ComponentType enumeration value
      */
     public boolean setMediaType(ComponentType mediaType) {
         if(mediaItemTasks.isEmpty())
@@ -211,6 +214,7 @@ public abstract class MediaItem extends Observable
     }
 
     /**
+     * Gets the status of the mediaItem values are as the MediaStatus enumeration
      * @return the status
      */
     public MediaStatus getStatus() {
@@ -220,7 +224,6 @@ public abstract class MediaItem extends Observable
     /**
      * Return a valid list of MediaStatus options based upon the Media Items current state and status
      * that the status could be changed to
-     * @param withAFile boolean indicating if the status change includes providing a file
      * @return MediaStatus[] of valid status option that the current status can be updated to
      */
     public MediaStatus[] getValidStatusOptions(Worker worker)
@@ -228,16 +231,37 @@ public abstract class MediaItem extends Observable
         return workFlow.getHandledValidStatusOptions(status, mediaSource, worker);
     }
     
+    /**
+     * Provides a list of valid work roles for the given status
+     * @param status the status to which work roles are required (status values are set by MediaStatus enumeration)
+     * @return Array of worker roles (Enumeration WorkerRoles)
+     */
     public WorkerRoles[] getValidAllocateWorkRoles(MediaStatus status)
     {
         return workFlow.getHandledValidAllocateToWorkerRoles(status);
     }
     
+    /**
+     * Confirms if a status requires a file before it can be changed
+     * @param status the status to be checked status values are set by MediaStatus enumeration)
+     * @return boolean answer
+     */
     public boolean getFileRequiredWithStatus(MediaStatus status)
     {
         return workFlow.getFileRequiredWithStatus(status);
     }
     
+    /**
+     * Internal method for the creation of TaskItems (tasks) in connection with the this MediaItem
+     * All tasks created by this method are automatically added to the TaskList for the project that this MediaItem belongs to
+     * 
+     * @param workerRole The work role (WorkerRole enumeration) that the task is to be allocated to
+     * @param priority The priority of the task
+     * @param taskStatus The Status of the task - normally start as TaskStatus.AWAITING_ACTION
+     * @param description A textual description of the task
+     * @param fileRequired Boolean to indicate if a file is required
+     * @return The created task
+     */
     protected TaskItem addTask(WorkerRoles workerRole, int priority, TaskStatus taskStatus, String description, boolean fileRequired)
     {
         TaskItem newTask = new TaskItem(this, workerRole, priority, taskStatus, description, fileRequired);
@@ -275,9 +299,15 @@ public abstract class MediaItem extends Observable
     public abstract void currentTaskCompleted(String Comments);
     
     /**
+     * Returns the current file name
+     * @return filename including path
+     */
+    public abstract File getFile();
+            
+    /**
      * Check if the node or any of its child nodes have tasks allocated to them
      * If they are tasks allocated the node cannot be removed.
-     * @return 
+     * @return boolean answer
      */
     public abstract boolean canBeDeleted();
     

@@ -12,7 +12,7 @@ public class Freelancer extends Worker
     
     /**
      * Setups Freelancer
-     * @param roles Work role of the freelancer
+     * @param role Work role of the freelancer
      * @param name Individuals name
      * @param userName Individuals username for authentication
      * @param password Individuals password for authentication
