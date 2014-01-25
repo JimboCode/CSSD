@@ -69,12 +69,14 @@ public class TaskList implements Observer
                 case TaskListEvent.NEW:
                 {
                     addTaskToList(taskListEvent.getTaskItem());
+                    break;
                 }
                     
                 // Delete all the events for the content item
                 case TaskListEvent.DELETE_ALL_CONTENTS_TASKS:
                 {
                     removeAllTask(taskListEvent.getMediaItem());
+                    break;
                 }
             }
         }
@@ -128,7 +130,7 @@ public class TaskList implements Observer
                 Worker worker = task.getWorker();
                 
                 // if the task has been assigned to worker then remove it from their list
-                if (worker != null) worker.removeTask(project, task);
+                if (worker != null) worker.removeTask(task);
                 
                 // remove the task from the gobal list
                 mediaItemTasks.remove(task);

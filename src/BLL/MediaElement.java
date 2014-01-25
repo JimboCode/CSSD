@@ -190,7 +190,7 @@ public class MediaElement extends MediaItem
             QCReport report = currentTask.getQCReport();
             
             // create a new task 
-            TaskItem task = addTask(WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false);
+            TaskItem task = addTask(WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false, null);
             
             // add QC Report
             task.setQCReport(report);
@@ -276,7 +276,7 @@ public class MediaElement extends MediaItem
                     boolean fileRequired = getFileRequiredWithStatus(thisStatus);
 
                     // create a new task
-                    TaskItem task = addTask(roleType, priority, TaskStatus.AWAITING_ACTION, description, fileRequired);
+                    TaskItem task = addTask(roleType, priority, TaskStatus.AWAITING_ACTION, description, fileRequired, null);
 
                     // if allocated to an individual set the assignment
                     if (allocatedTo != null) task.setWorker(allocatedTo);

@@ -126,10 +126,7 @@ public class MediaAsset extends MediaItem
                 boolean fileRequired = getFileRequiredWithStatus(thisStatus);
                 
                 // create a new task
-                TaskItem task = addTask(roleType, priority, TaskStatus.AWAITING_ACTION, description, fileRequired);
-                
-                // if allocated to an individual set the assignment
-                if (allocatedTo != null) task.setWorker(allocatedTo);
+                TaskItem task = addTask(roleType, priority, TaskStatus.AWAITING_ACTION, description, fileRequired, allocatedTo);
                 
                 // notify update
                 raiseUpdateEvent();
@@ -197,7 +194,7 @@ public class MediaAsset extends MediaItem
             
             if (!comments.isEmpty()) description += " (Comment : " + comments + " )";            
             // create a new task
-            addTask(WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false);
+            addTask(WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false, null);
             
             // notify update
             raiseUpdateEvent();
@@ -236,7 +233,7 @@ public class MediaAsset extends MediaItem
             QCReport report = currentTask.getQCReport();
             
             // create a new task 
-            TaskItem task = addTask(WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false);
+            TaskItem task = addTask(WorkerRoles.QC_TEAM_LEADER, 4, TaskStatus.AWAITING_ACTION, description, false, null);
             
             // add QC Report
             task.setQCReport(report);

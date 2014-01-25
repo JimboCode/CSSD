@@ -176,6 +176,9 @@ public class TaskItem
             {
                 this.status = status;
                 
+                // remove task from worker task list
+                worker.removeTask(this);
+                
                 // update the MediaItem
                 mediaItem.currentTaskCompleted(comments);
                 
@@ -187,6 +190,9 @@ public class TaskItem
             {
                 // if no file is required
                 this.status = status;
+                
+                // remove task from worker task list
+                worker.removeTask(this);
                 
                 // update the MediaItem
                 mediaItem.currentTaskCompleted(comments);

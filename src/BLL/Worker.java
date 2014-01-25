@@ -141,17 +141,16 @@ public abstract class Worker
     
     /**
      * Removes a task from the workers personal task list
-     * @param project the project the task list belongs to
      * @param task the task to be removed
      */
-    public void removeTask(Project project, TaskItem task)
+    public void removeTask(TaskItem task)
     {
-        // check there is a task list for this project
-        AssignedTasks taskList = getTaskList(project);
-        if (taskList != null)
+        for (AssignedTasks taskList: projectTaskLists)
         {
-            // remove item to task list
-            if(taskList.contains(task)) taskList.remove(task);
+            if(taskList.contains(task))
+            {
+                taskList.remove(task);
+            }
         }
     }
     
@@ -254,7 +253,7 @@ public abstract class Worker
          */
         public void remove(TaskItem task)
         {
-            taskItems.remove(task);
+            if (taskItems.contains(task)) taskItems.remove(task);
         }
         
         /**

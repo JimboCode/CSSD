@@ -262,9 +262,12 @@ public abstract class MediaItem extends Observable
      * @param fileRequired Boolean to indicate if a file is required
      * @return The created task
      */
-    protected TaskItem addTask(WorkerRoles workerRole, int priority, TaskStatus taskStatus, String description, boolean fileRequired)
+    protected TaskItem addTask(WorkerRoles workerRole, int priority, TaskStatus taskStatus, String description, boolean fileRequired, Worker allocatedTo)
     {
         TaskItem newTask = new TaskItem(this, workerRole, priority, taskStatus, description, fileRequired);
+        
+        // if allocated to an individual set the assignment
+        if (allocatedTo != null) newTask.setWorker(allocatedTo);
         
         // add the new task
         mediaItemTasks.add(newTask);
