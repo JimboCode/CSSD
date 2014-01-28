@@ -72,7 +72,7 @@ public class Main {
         register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"Sam","Pickstone"}, "S.Pickstone", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.PROJECT_MANAGER, new String[]{"Sarah","Murfet"}, "S.Murfet", "Password",WorkerType.STAFF); 
 
-        register.addWorker(WorkerRoles.INTERRUPTER, new String[]{"Rachel","Jones"}, "R.Jones", "Password",WorkerType.STAFF);
+        register.addWorker(WorkerRoles.INTERPRETER, new String[]{"Rachel","Jones"}, "R.Jones", "Password",WorkerType.STAFF);
                 
         register.addWorker(WorkerRoles.QC, new String[]{"John","Smith"}, "J.Smith", "Password",WorkerType.STAFF);
         register.addWorker(WorkerRoles.QC, new String[]{"Richard","Brown"}, "R.Brown", "Password",WorkerType.STAFF);

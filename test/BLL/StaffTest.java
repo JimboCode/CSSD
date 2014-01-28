@@ -42,7 +42,7 @@ public class StaffTest {
     @Test
     public void testGetName() {
         System.out.println("getName");
-        Staff instance = new Staff(WorkerRoles.INTERRUPTER, new String[]{"Rachel","Jones"}, "R.Jones", "Password");
+        Staff instance = new Staff(WorkerRoles.INTERPRETER, new String[]{"Rachel","Jones"}, "R.Jones", "Password");
         String expResult = "Rachel Jones";
         String result = instance.getName();
         assertEquals(expResult, result);
@@ -54,7 +54,7 @@ public class StaffTest {
     @Test
     public void testGetWorkerType() {
         System.out.println("getWorkerType");
-        Staff instance = new Staff(WorkerRoles.INTERRUPTER, new String[]{"Rachel","Jones"}, "R.Jones", "Password");
+        Staff instance = new Staff(WorkerRoles.INTERPRETER, new String[]{"Rachel","Jones"}, "R.Jones", "Password");
         WorkerType expResult = WorkerType.STAFF;
         WorkerType result = instance.getWorkerType();
         assertEquals(expResult, result);

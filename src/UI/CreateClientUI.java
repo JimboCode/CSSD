@@ -184,6 +184,9 @@ public class CreateClientUI extends javax.swing.JInternalFrame {
             }
             else
             {
+                // confirm that the client was created
+                JOptionPane.showMessageDialog(this, "Client has been created","Information",JOptionPane.INFORMATION_MESSAGE);
+                
                 // close form
                 try {
                     this.setClosed(true);

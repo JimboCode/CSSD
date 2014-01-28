@@ -9,7 +9,7 @@ public enum WorkerRoles
 {
     ALL,
     AUTHOR,
-    INTERRUPTER,
+    INTERPRETER,
     QC,
     PROJECT_MANAGER,
     QC_TEAM_LEADER,

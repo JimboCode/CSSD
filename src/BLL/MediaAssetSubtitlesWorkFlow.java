@@ -112,7 +112,7 @@ public class MediaAssetSubtitlesWorkFlow extends MediaItemWorkFlow
         {
             case ORDERED_IN_HOUSE: case ARRIVED_IN_VAULT: case FIXES_ORDERED_DELAYED:
             {
-                return new WorkerRoles[]{WorkerRoles.INTERRUPTER};
+                return new WorkerRoles[]{WorkerRoles.INTERPRETER};
             }
                 
             case REQUESTED_FROM_CLIENT: case REPLACEMENT_REQUESTED_FROM_CLIENT:

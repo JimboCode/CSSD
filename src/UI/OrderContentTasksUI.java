@@ -61,7 +61,7 @@ public class OrderContentTasksUI extends javax.swing.JInternalFrame implements O
     public OrderContentTasksUI(Worker user) 
     {
         // set the form name and enable the close button
-        super("Define Project Content",false,true,false,false);
+        super("Order Project Content",false,true,false,false);
         initComponents();
         this.user = user;
         
